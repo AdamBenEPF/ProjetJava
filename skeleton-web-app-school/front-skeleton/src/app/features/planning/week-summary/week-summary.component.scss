@@ -1,0 +1,30 @@
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--app-surface);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+  mat-icon {
+    color: var(--app-accent);
+  }
+}
+
+.value {
+  display: block;
+  font-weight: 600;
+}
+
+.label {
+  font-size: 0.8rem;
+  color: var(--app-text-muted);
+}

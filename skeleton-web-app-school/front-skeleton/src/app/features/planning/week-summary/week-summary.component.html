@@ -1,0 +1,25 @@
+<div class="summary">
+  <div class="stat">
+    <mat-icon>restaurant</mat-icon>
+    <div>
+      <span class="value">{{ mealCount }} / {{ slotsPerWeek }}</span>
+      <span class="label">repas planifiés</span>
+    </div>
+  </div>
+  <div class="stat">
+    <mat-icon>local_fire_department</mat-icon>
+    <div>
+      <span class="value">{{ averageCalories | number: "1.0-0" }} kcal</span>
+      <span class="label">moyenne par jour planifié</span>
+    </div>
+  </div>
+  <div class="stat">
+    <mat-icon>bar_chart</mat-icon>
+    <div>
+      <span class="value">
+        P {{ proteines | number: "1.0-0" }} g · G {{ glucides | number: "1.0-0" }} g · L {{ lipides | number: "1.0-0" }} g
+      </span>
+      <span class="label">macronutriments de la semaine</span>
+    </div>
+  </div>
+</div>

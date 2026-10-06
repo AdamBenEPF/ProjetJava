@@ -1,0 +1,25 @@
+@if (compact) {
+  <span class="compact">
+    {{ format(values.calories) }} kcal · P {{ format(values.proteines) }} · G {{ format(values.glucides) }} · L
+    {{ format(values.lipides) }}
+  </span>
+} @else {
+  <dl class="nutrition">
+    <div class="item calories">
+      <dt>Calories</dt>
+      <dd>{{ format(values.calories) }} <small>kcal</small></dd>
+    </div>
+    <div class="item">
+      <dt>Protéines</dt>
+      <dd>{{ format(values.proteines) }} <small>g</small></dd>
+    </div>
+    <div class="item">
+      <dt>Glucides</dt>
+      <dd>{{ format(values.glucides) }} <small>g</small></dd>
+    </div>
+    <div class="item">
+      <dt>Lipides</dt>
+      <dd>{{ format(values.lipides) }} <small>g</small></dd>
+    </div>
+  </dl>
+}

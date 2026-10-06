@@ -1,0 +1,27 @@
+<div class="filters">
+  <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
+    <mat-label>Rechercher</mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+    <input matInput [ngModel]="filters.search" (ngModelChange)="update({ search: $event })" placeholder="Titre ou ingrédient" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Régime</mat-label>
+    <mat-select [value]="filters.regime" (valueChange)="update({ regime: $event })">
+      <mat-option [value]="null">Tous</mat-option>
+      @for (regime of regimes; track regime) {
+        <mat-option [value]="regime">{{ regime | regimeLabel }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Type de repas</mat-label>
+    <mat-select [value]="filters.typeRepas" (valueChange)="update({ typeRepas: $event })">
+      <mat-option [value]="null">Tous</mat-option>
+      @for (type of typesRepas; track type) {
+        <mat-option [value]="type">{{ type | typeRepasLabel }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</div>

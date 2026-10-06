@@ -1,0 +1,21 @@
+<app-page-header title="Liste de courses" subtitle="Ingrédients agrégés à partir des recettes de votre planning." icon="shopping_cart">
+  <app-export-menu [options]="exportOptions" [disabled]="!items().length" (exportRequested)="exportList($event)"></app-export-menu>
+</app-page-header>
+
+<app-week-navigator></app-week-navigator>
+
+@if (loading()) {
+  <app-loading-state message="Génération de la liste de courses…"></app-loading-state>
+} @else if (error()) {
+  <app-error-state [message]="error()!" (retry)="reload()"></app-error-state>
+} @else if (items().length) {
+  @if (list()?.dateGeneration; as generatedAt) {
+    <p class="generated-at">Générée le {{ generatedAt | date: "d MMMM y à HH:mm" }}</p>
+  }
+  <app-shopping-progress [done]="checkedCount()" [total]="items().length"></app-shopping-progress>
+  <app-shopping-list-items [items]="items()" [checkedKeys]="checkedKeys()" (toggle)="toggle($event)"></app-shopping-list-items>
+} @else {
+  <app-empty-state icon="remove_shopping_cart" title="Liste vide" message="Aucun repas n'est planifié cette semaine : ajoutez des recettes au planning pour générer la liste.">
+    <a mat-flat-button color="primary" routerLink="/planning">Aller au planning</a>
+  </app-empty-state>
+}

@@ -1,0 +1,58 @@
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding-top: 8px;
+  margin-bottom: 12px;
+
+  .search {
+    flex: 1;
+    min-width: 220px;
+  }
+}
+
+.recipes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 50vh;
+  overflow-y: auto;
+
+  button {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    border: 1px solid var(--app-border);
+    border-radius: 10px;
+    background: var(--app-surface);
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+
+    &:hover {
+      border-color: var(--app-primary);
+      background: var(--app-primary-soft);
+    }
+  }
+}
+
+.title {
+  display: block;
+  font-weight: 500;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.none {
+  padding: 24px;
+  text-align: center;
+  color: var(--app-text-muted);
+}

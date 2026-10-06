@@ -1,26 +1,78 @@
 @use "theme";
 @import "./bootstrap/_bootstrap";
 
-/* You can add global styles to this file, and also import other style files */
-
-html, body { height: 100%;}
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
-.mat-mini-fab {
-  color : theme.$white !important;
+/* Variables partagées par tous les composants (couleurs du thème Material + neutres). */
+:root {
+  --app-primary: #{theme.$primary};
+  --app-primary-dark: #{theme.$primary-dark};
+  --app-primary-soft: #e6f4ea;
+  --app-accent: #{theme.$accent};
+  --app-accent-soft: #fff0e6;
+  --app-danger: #{theme.$warn};
+  --app-danger-soft: #fdecea;
+  --app-surface: #ffffff;
+  --app-surface-alt: #f3f5f2;
+  --app-background: #f8faf7;
+  --app-border: #e0e4dd;
+  --app-text: #1f2a1f;
+  --app-text-muted: #66706a;
 }
 
-.mat-raised-button {
-  color : theme.$white !important;
+html,
+body {
+  height: 100%;
 }
 
-table {
-  font-size: medium;
-  tr {
-    height: 57px;
-    td {
-      vertical-align: middle;
-    }
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background: var(--app-background);
+  color: var(--app-text);
+}
+
+.app-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 28px 24px 48px;
+}
+
+a {
+  color: var(--app-primary);
+}
+
+/* Boutons Material : on garde le texte blanc sur fond plein malgré Bootstrap. */
+.mat-mdc-unelevated-button.mat-primary,
+.mat-mdc-unelevated-button.mat-accent {
+  --mdc-filled-button-label-text-color: #fff;
+}
+
+.snack-success {
+  --mdc-snackbar-container-color: #{theme.$primary-dark};
+}
+
+.snack-error {
+  --mdc-snackbar-container-color: #{theme.$warn};
+}
+
+@media (max-width: 600px) {
+  .app-container {
+    padding: 16px;
+  }
+}
+
+/* Export « Imprimer / PDF » : uniquement le contenu utile. */
+@media print {
+  .no-print,
+  .cdk-overlay-container {
+    display: none !important;
   }
 
+  body {
+    background: #fff;
+  }
+
+  .app-container {
+    max-width: none;
+    padding: 0;
+  }
 }

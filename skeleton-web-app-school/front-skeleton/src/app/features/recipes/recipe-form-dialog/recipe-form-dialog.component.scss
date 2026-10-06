@@ -1,0 +1,40 @@
+.full {
+  width: 100%;
+}
+
+.grid-2,
+.grid-4 {
+  display: grid;
+  gap: 0 12px;
+}
+
+.grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+h3 {
+  margin: 8px 0 12px;
+  font-size: 1rem;
+  font-weight: 600;
+
+  small {
+    font-weight: 400;
+    color: var(--app-text-muted);
+  }
+}
+
+.form-error {
+  display: block;
+  margin-top: 16px;
+}
+
+@media (max-width: 600px) {
+  .grid-2,
+  .grid-4 {
+    grid-template-columns: 1fr 1fr;
+  }
+}

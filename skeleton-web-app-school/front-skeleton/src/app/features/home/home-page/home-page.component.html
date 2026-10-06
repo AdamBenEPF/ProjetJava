@@ -1,0 +1,40 @@
+<section class="hero">
+  <div class="hero-text">
+    <h1>Bonjour{{ preferences().nom ? " " + preferences().nom : "" }} 👋</h1>
+    <p>Planifiez vos repas de la semaine, laissez l'IA vous proposer des recettes équilibrées et obtenez votre liste de courses en un clic.</p>
+    <div class="hero-actions">
+      <a mat-flat-button color="primary" routerLink="/planning">
+        <mat-icon>calendar_month</mat-icon>
+        Planifier ma semaine
+      </a>
+      @if (!preferences().preferenceRegime) {
+        <a mat-stroked-button routerLink="/preferences">Définir mon régime</a>
+      }
+    </div>
+  </div>
+  <app-today-meals class="today"></app-today-meals>
+</section>
+
+<section class="features">
+  <app-feature-card
+    title="Recettes"
+    description="Parcourez le catalogue filtré selon votre régime ou générez une recette avec ses valeurs nutritionnelles."
+    icon="menu_book"
+    link="/recettes"
+    cta="Voir les recettes"
+  ></app-feature-card>
+  <app-feature-card
+    title="Planning"
+    description="Assignez petit-déjeuner, déjeuner et dîner pour chaque jour et suivez vos apports caloriques."
+    icon="calendar_month"
+    link="/planning"
+    cta="Ouvrir le planning"
+  ></app-feature-card>
+  <app-feature-card
+    title="Liste de courses"
+    description="Les ingrédients de la semaine sont regroupés automatiquement. Cochez-les et exportez la liste."
+    icon="shopping_cart"
+    link="/courses"
+    cta="Voir la liste"
+  ></app-feature-card>
+</section>

@@ -1,0 +1,59 @@
+<h2 mat-dialog-title><mat-icon class="title-icon">auto_awesome</mat-icon> Générer une recette avec l'IA</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="criteria" (ngSubmit)="generate()">
+    <mat-form-field appearance="outline">
+      <mat-label>Type de repas</mat-label>
+      <mat-select formControlName="typeRepas">
+        @for (type of typesRepas; track type) {
+          <mat-option [value]="type">{{ type | typeRepasLabel }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Régime</mat-label>
+      <mat-select formControlName="typeRegime">
+        @for (regime of regimes; track regime) {
+          <mat-option [value]="regime">{{ regime | regimeLabel }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>Consignes (optionnel)</mat-label>
+      <textarea matInput formControlName="consignes" rows="2" maxlength="300" placeholder="Ex : rapide, moins de 500 kcal, sans gluten…"></textarea>
+    </mat-form-field>
+  </form>
+
+  @if (loading()) {
+    <app-loading-state message="L'IA prépare votre recette…"></app-loading-state>
+  } @else {
+    @if (proposal(); as recipe) {
+      <section class="proposal">
+        <div class="proposal-header">
+          <h3>{{ recipe.titre }}</h3>
+          <app-diet-badge [regime]="recipe.typeRegime"></app-diet-badge>
+        </div>
+        <app-nutrition-summary [values]="recipe"></app-nutrition-summary>
+        <h4>Ingrédients</h4>
+        <app-recipe-ingredients-list [ingredients]="recipe.ingredients ?? []"></app-recipe-ingredients-list>
+      </section>
+    }
+  }
+
+  @if (error(); as message) {
+    <app-error-state [message]="message" (retry)="generate()"></app-error-state>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="loading()">Annuler</button>
+  <button mat-stroked-button color="primary" (click)="generate()" [disabled]="loading()">
+    <mat-icon>{{ proposal() ? "refresh" : "auto_awesome" }}</mat-icon>
+    {{ proposal() ? "Autre proposition" : "Générer" }}
+  </button>
+  @if (proposal()) {
+    <button mat-flat-button color="primary" (click)="accept()" [disabled]="loading()">
+      <mat-icon>check</mat-icon>
+      Ajouter aux recettes
+    </button>
+  }
+</mat-dialog-actions>

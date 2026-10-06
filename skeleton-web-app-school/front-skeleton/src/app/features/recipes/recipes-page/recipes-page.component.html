@@ -1,0 +1,29 @@
+<app-page-header title="Recettes" subtitle="Parcourez, créez ou générez des recettes adaptées à votre régime." icon="menu_book">
+  <button mat-stroked-button color="primary" (click)="openCreate()">
+    <mat-icon>add</mat-icon>
+    Nouvelle recette
+  </button>
+  <button mat-flat-button color="primary" (click)="openGenerate()">
+    <mat-icon>auto_awesome</mat-icon>
+    Générer avec l'IA
+  </button>
+</app-page-header>
+
+<app-recipe-filters [filters]="filters()" (filtersChange)="onFiltersChange($event)"></app-recipe-filters>
+
+@if (loading()) {
+  <app-loading-state message="Chargement des recettes…"></app-loading-state>
+} @else if (error()) {
+  <app-error-state [message]="error()!" (retry)="loadRecipes()"></app-error-state>
+} @else {
+  <p class="count">{{ visibleRecipes().length }} recette(s)</p>
+  <div class="grid">
+    @for (recipe of visibleRecipes(); track recipe) {
+      <app-recipe-card [recipe]="recipe" (view)="openDetail($event)"></app-recipe-card>
+    } @empty {
+      <app-empty-state class="full" icon="search_off" title="Aucune recette trouvée" message="Modifiez les filtres ou générez une nouvelle recette avec l'IA.">
+        <button mat-button color="primary" (click)="resetFilters()">Réinitialiser les filtres</button>
+      </app-empty-state>
+    }
+  </div>
+}

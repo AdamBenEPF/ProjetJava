@@ -1,0 +1,31 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Au menu aujourd'hui</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (loading()) {
+      <app-loading-state [diameter]="28"></app-loading-state>
+    } @else if (error()) {
+      <app-error-state [message]="error()!" (retry)="load()"></app-error-state>
+    } @else {
+      <ul class="meals">
+        @for (moment of moments; track moment) {
+          <li>
+            <span class="moment">{{ moment | typeRepasLabel }}</span>
+            @if (meals()[moment]; as meal) {
+              <span class="recipe">{{ meal.recette.titre }}</span>
+              @if (meal.recette.calories) {
+                <span class="kcal">{{ meal.recette.calories }} kcal</span>
+              }
+            } @else {
+              <span class="recipe empty">Rien de prévu</span>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </mat-card-content>
+  <mat-card-actions align="end">
+    <a mat-button color="primary" routerLink="/planning">Voir le planning</a>
+  </mat-card-actions>
+</mat-card>

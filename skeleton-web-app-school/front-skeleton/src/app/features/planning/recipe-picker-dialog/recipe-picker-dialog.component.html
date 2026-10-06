@@ -1,0 +1,44 @@
+<h2 mat-dialog-title>{{ data.typeRepas | typeRepasLabel }} — {{ data.dayLabel }}</h2>
+<mat-dialog-content>
+  <div class="toolbar">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search">
+      <mat-label>Rechercher une recette</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [ngModel]="search()" (ngModelChange)="search.set($event)" cdkFocusInitial />
+    </mat-form-field>
+    @if (data.regime) {
+      <mat-slide-toggle [checked]="onlyMyDiet()" (change)="toggleDietFilter($event.checked)">
+        Uniquement {{ data.regime | regimeLabel }}
+      </mat-slide-toggle>
+    }
+  </div>
+
+  @if (loading()) {
+    <app-loading-state></app-loading-state>
+  } @else if (error()) {
+    <app-error-state [message]="error()!" (retry)="load()"></app-error-state>
+  } @else {
+    <ul class="recipes">
+      @for (recipe of filtered(); track recipe.id) {
+        <li>
+          <button type="button" (click)="select(recipe)">
+            <span class="title">{{ recipe.titre }}</span>
+            <span class="meta">
+              <app-diet-badge [regime]="recipe.typeRegime"></app-diet-badge>
+              <app-nutrition-summary [values]="recipe" [compact]="true"></app-nutrition-summary>
+            </span>
+          </button>
+        </li>
+      } @empty {
+        <li class="none">Aucune recette pour ce créneau. Essayez la génération par l'IA !</li>
+      }
+    </ul>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Annuler</button>
+  <button mat-flat-button color="primary" (click)="generateWithAi()">
+    <mat-icon>auto_awesome</mat-icon>
+    Générer avec l'IA
+  </button>
+</mat-dialog-actions>

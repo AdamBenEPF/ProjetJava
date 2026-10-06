@@ -1,0 +1,42 @@
+.options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 12px;
+  border: 2px solid var(--app-border);
+  border-radius: 14px;
+  background: var(--app-surface);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+
+  &:hover {
+    border-color: var(--app-primary);
+  }
+
+  &.selected {
+    border-color: var(--app-primary);
+    background: var(--app-primary-soft);
+  }
+}
+
+.emoji {
+  font-size: 2rem;
+}
+
+.label {
+  font-weight: 600;
+}
+
+.description {
+  font-size: 0.8rem;
+  text-align: center;
+  color: var(--app-text-muted);
+}

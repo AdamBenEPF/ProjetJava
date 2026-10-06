@@ -1,0 +1,16 @@
+<header class="page-header">
+  <div class="heading">
+    @if (icon) {
+      <mat-icon class="heading-icon" aria-hidden="true">{{ icon }}</mat-icon>
+    }
+    <div>
+      <h1>{{ title }}</h1>
+      @if (subtitle) {
+        <p class="subtitle">{{ subtitle }}</p>
+      }
+    </div>
+  </div>
+  <div class="actions no-print">
+    <ng-content></ng-content>
+  </div>
+</header>

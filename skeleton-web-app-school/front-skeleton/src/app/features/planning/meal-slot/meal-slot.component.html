@@ -1,0 +1,27 @@
+<div class="slot" [class.filled]="plan">
+  <span class="moment">{{ moment | typeRepasLabel }}</span>
+  @if (plan) {
+    <button class="recipe" type="button" (click)="view.emit(plan)" [matTooltip]="'Voir la recette'">
+      <span class="title">{{ plan.recette.titre }}</span>
+      <span class="meta">
+        <app-diet-badge [regime]="plan.recette.typeRegime"></app-diet-badge>
+        @if (plan.recette.calories) {
+          <span>{{ plan.recette.calories }} kcal</span>
+        }
+      </span>
+    </button>
+    <div class="actions no-print">
+      <button mat-icon-button (click)="add.emit()" matTooltip="Remplacer" aria-label="Remplacer le repas">
+        <mat-icon>swap_horiz</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" (click)="remove.emit(plan)" matTooltip="Retirer" aria-label="Retirer le repas">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  } @else {
+    <button class="add no-print" type="button" (click)="add.emit()">
+      <mat-icon>add</mat-icon>
+      Ajouter
+    </button>
+  }
+</div>

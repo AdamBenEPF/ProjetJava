@@ -1,0 +1,80 @@
+<h2 mat-dialog-title>Nouvelle recette</h2>
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content>
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>Titre</mat-label>
+      <input matInput formControlName="titre" maxlength="150" cdkFocusInitial />
+      @if (form.controls.titre.hasError("required")) {
+        <mat-error>Le titre est obligatoire.</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="grid-2">
+      <mat-form-field appearance="outline">
+        <mat-label>Type de repas</mat-label>
+        <mat-select formControlName="typeRepas">
+          @for (type of typesRepas; track type) {
+            <mat-option [value]="type">{{ type | typeRepasLabel }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Régime</mat-label>
+        <mat-select formControlName="typeRegime">
+          @for (regime of regimes; track regime) {
+            <mat-option [value]="regime">{{ regime | regimeLabel }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <h3>Valeurs nutritionnelles <small>(par portion)</small></h3>
+    <div class="grid-4">
+      <mat-form-field appearance="outline">
+        <mat-label>Calories (kcal)</mat-label>
+        <input matInput type="number" min="0" formControlName="calories" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Protéines (g)</mat-label>
+        <input matInput type="number" min="0" step="0.01" formControlName="proteines" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Glucides (g)</mat-label>
+        <input matInput type="number" min="0" step="0.01" formControlName="glucides" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Lipides (g)</mat-label>
+        <input matInput type="number" min="0" step="0.01" formControlName="lipides" />
+      </mat-form-field>
+    </div>
+
+    <h3>Ingrédients</h3>
+    @for (group of ingredients.controls; track group; let i = $index) {
+      <app-ingredient-form-row
+        [group]="group"
+        [index]="i"
+        [removable]="ingredients.length > 1"
+        (remove)="removeIngredient(i)"
+      ></app-ingredient-form-row>
+    }
+    <button mat-stroked-button type="button" (click)="addIngredient()">
+      <mat-icon>add</mat-icon>
+      Ajouter un ingrédient
+    </button>
+
+    @if (error(); as message) {
+      <app-error-state class="form-error" [message]="message" [retryable]="false"></app-error-state>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close [disabled]="saving()">Annuler</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+      @if (saving()) {
+        <mat-spinner diameter="18"></mat-spinner>
+      } @else {
+        Enregistrer
+      }
+    </button>
+  </mat-dialog-actions>
+</form>

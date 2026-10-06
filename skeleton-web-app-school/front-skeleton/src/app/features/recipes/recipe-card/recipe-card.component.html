@@ -1,0 +1,20 @@
+<mat-card class="recipe-card" (click)="view.emit(recipe)">
+  <div class="banner" [class]="'banner-' + recipe.typeRepas.toLowerCase()" aria-hidden="true">
+    {{ emojis[recipe.typeRepas] }}
+  </div>
+  <mat-card-content>
+    <div class="tags">
+      <span class="meal-type">{{ recipe.typeRepas | typeRepasLabel }}</span>
+      <app-diet-badge [regime]="recipe.typeRegime"></app-diet-badge>
+    </div>
+    <h3>{{ recipe.titre }}</h3>
+    <app-nutrition-summary [values]="recipe" [compact]="true"></app-nutrition-summary>
+  </mat-card-content>
+  <mat-card-actions align="end">
+    <span class="ingredient-count">{{ recipe.ingredients?.length ?? 0 }} ingrédient(s)</span>
+    <button mat-button color="primary">
+      Voir
+      <mat-icon iconPositionEnd>chevron_right</mat-icon>
+    </button>
+  </mat-card-actions>
+</mat-card>
