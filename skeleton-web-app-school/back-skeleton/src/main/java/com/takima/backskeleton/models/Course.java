@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class Course {
 
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +23,9 @@ private String password;
 private String dietPreference;
 
 // Constructeurs vides et avec arguments
-public User() {}
+public Course() {}
 
-public User(String name, String email, String password, String dietPreference) {
+public Course(String name, String email, String password, String dietPreference) {
     this.name = name;
     this.email = email;
     this.password = password;
