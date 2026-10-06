@@ -1,12 +1,13 @@
-package com.takima.backskeleton;
+package com.squadz.back_app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BackSkeletonApplication {
+public class BackAppApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BackSkeletonApplication.class, args);
+		SpringApplication.run(BackAppApplication.class, args);
 	}
+
 }
