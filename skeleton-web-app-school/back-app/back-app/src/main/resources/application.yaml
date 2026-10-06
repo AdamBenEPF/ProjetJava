@@ -5,5 +5,8 @@ spring:
     password: toor
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
+  flyway:
+    baseline-on-migrate: true
+    baseline-version: 0
