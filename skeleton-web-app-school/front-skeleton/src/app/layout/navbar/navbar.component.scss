@@ -49,18 +49,8 @@ a {
   display: none;
 }
 
-.user {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-}
-
 @media (max-width: 900px) {
-  .links,
-  .user-name,
-  .user app-diet-badge {
+  .links {
     display: none;
   }
 

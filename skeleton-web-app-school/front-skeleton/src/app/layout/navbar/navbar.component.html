@@ -4,32 +4,28 @@
     <span class="brand-name">Planning Repas</span>
   </a>
 
-  <nav class="links">
-    @for (link of links; track link.href) {
-      <a mat-button [routerLink]="link.href" routerLinkActive="active">
-        <mat-icon>{{ link.icon }}</mat-icon>
-        <span class="link-label">{{ link.name }}</span>
-      </a>
-    }
-  </nav>
+  @if (isAuthenticated()) {
+    <nav class="links">
+      @for (link of links; track link.href) {
+        <a mat-button [routerLink]="link.href" routerLinkActive="active">
+          <mat-icon>{{ link.icon }}</mat-icon>
+          <span class="link-label">{{ link.name }}</span>
+        </a>
+      }
+    </nav>
 
-  <button mat-icon-button class="menu-mobile" [matMenuTriggerFor]="mobileMenu" aria-label="Menu">
-    <mat-icon>menu</mat-icon>
-  </button>
-  <mat-menu #mobileMenu="matMenu">
-    @for (link of links; track link.href) {
-      <a mat-menu-item [routerLink]="link.href">
-        <mat-icon>{{ link.icon }}</mat-icon>
-        <span>{{ link.name }}</span>
-      </a>
-    }
-  </mat-menu>
+    <button mat-icon-button class="menu-mobile" [matMenuTriggerFor]="mobileMenu" aria-label="Menu">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <mat-menu #mobileMenu="matMenu">
+      @for (link of links; track link.href) {
+        <a mat-menu-item [routerLink]="link.href">
+          <mat-icon>{{ link.icon }}</mat-icon>
+          <span>{{ link.name }}</span>
+        </a>
+      }
+    </mat-menu>
+  }
 
-  <a class="user" routerLink="/preferences" title="Modifier mes préférences">
-    <mat-icon>account_circle</mat-icon>
-    <span class="user-name">{{ preferences().nom || "Utilisateur #" + preferences().utilisateurId }}</span>
-    @if (preferences().preferenceRegime; as regime) {
-      <app-diet-badge [regime]="regime"></app-diet-badge>
-    }
-  </a>
+  <app-user-menu></app-user-menu>
 </mat-toolbar>

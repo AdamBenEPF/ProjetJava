@@ -1,8 +1,4 @@
-import { Regime } from "./enums.model"
+import { Utilisateur } from "./user.model"
 
-/** Sous-ensemble de la table `utilisateur` utilisé par le front. */
-export interface UserPreferences {
-  utilisateurId: number
-  nom: string
-  preferenceRegime: Regime | null
-}
+/** Champs du profil modifiables depuis la page Préférences (corps de PUT /api/users/{id}). */
+export type UserPreferences = Pick<Utilisateur, "nom" | "preferenceRegime">

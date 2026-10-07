@@ -3,21 +3,11 @@ form {
 }
 
 .section {
+  display: block;
   margin-bottom: 20px;
 
   mat-card-content {
     padding-top: 16px;
-  }
-}
-
-.profile {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-
-  .name {
-    flex: 1;
-    min-width: 220px;
   }
 }
 

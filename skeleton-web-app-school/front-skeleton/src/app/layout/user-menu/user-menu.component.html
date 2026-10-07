@@ -1,0 +1,30 @@
+@if (user(); as user) {
+  <button mat-button class="trigger" [matMenuTriggerFor]="accountMenu" aria-label="Mon compte">
+    <mat-icon>account_circle</mat-icon>
+    <span class="user-name">{{ user.nom }}</span>
+    @if (user.preferenceRegime; as regime) {
+      <app-diet-badge [regime]="regime"></app-diet-badge>
+    }
+    <mat-icon class="chevron">expand_more</mat-icon>
+  </button>
+  <mat-menu #accountMenu="matMenu" xPosition="before">
+    <div class="account" (click)="$event.stopPropagation()">
+      <strong>{{ user.nom }}</strong>
+      <span class="email">{{ user.email }}</span>
+    </div>
+    <mat-divider></mat-divider>
+    <a mat-menu-item routerLink="/preferences">
+      <mat-icon>tune</mat-icon>
+      <span>Mes préférences</span>
+    </a>
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      <span>Se déconnecter</span>
+    </button>
+  </mat-menu>
+} @else {
+  <nav class="guest">
+    <a mat-button routerLink="/connexion">Se connecter</a>
+    <a mat-stroked-button routerLink="/inscription">S'inscrire</a>
+  </nav>
+}

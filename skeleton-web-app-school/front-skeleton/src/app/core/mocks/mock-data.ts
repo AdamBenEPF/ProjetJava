@@ -1,4 +1,5 @@
 import { Recette } from "core/models/recipe.model"
+import { RegisterRequest } from "core/models/user.model"
 
 const ing = (id: number, nom: string, unite: string, quantite: number) => ({ ingredient: { id, nom, unite }, quantite })
 
@@ -143,4 +144,10 @@ export const MOCK_RECIPES: Recette[] = [
       ing(26, "Oignon", "pieces", 0.5),
     ],
   },
+]
+
+/** Comptes de démonstration (mêmes identifiants que V2__insert_default_data.sql). */
+export const MOCK_USERS: (RegisterRequest & { id: number })[] = [
+  { id: 1, nom: "Alice Martin", email: "alice@example.com", motDePasse: "password123", preferenceRegime: "VEGETARIEN" },
+  { id: 2, nom: "Thomas Bernard", email: "thomas@example.com", motDePasse: "password123", preferenceRegime: "VIANDE" },
 ]

@@ -1,13 +1,17 @@
 import { HttpErrorResponse, HttpInterceptorFn, HttpRequest, HttpResponse } from "@angular/common/http"
 import { Observable, delay, of, throwError } from "rxjs"
 import { environment } from "../../../environments/environment"
-import { MOCK_RECIPES } from "core/mocks/mock-data"
+import { MOCK_RECIPES, MOCK_USERS } from "core/mocks/mock-data"
 import { Recette, RecipeGenerationRequest } from "core/models/recipe.model"
 import { PlanningRepas, PlanningRepasRequest } from "core/models/meal-plan.model"
 import { ShoppingListItem } from "core/models/shopping-list.model"
+import { LoginRequest, RegisterRequest, Utilisateur } from "core/models/user.model"
+import { UserPreferences } from "core/models/user-preferences.model"
 
 const recipes: Recette[] = structuredClone(MOCK_RECIPES)
 const mealPlans: PlanningRepas[] = []
+const users = structuredClone(MOCK_USERS)
+let nextUserId = users.length + 1
 let nextRecipeId = recipes.length + 1
 let nextPlanId = 1
 
@@ -26,6 +30,26 @@ export const mockApiInterceptor: HttpInterceptorFn = (req, next) => {
 }
 
 function route(req: HttpRequest<unknown>, path: string): Observable<HttpResponse<unknown>> | null {
+  if (path === "/auth/login" && req.method === "POST") {
+    const { email, motDePasse } = req.body as LoginRequest
+    const user = users.find((u) => u.email === email.toLowerCase() && u.motDePasse === motDePasse)
+    return user ? ok(withoutPassword(user)) : fail(401, "Email ou mot de passe incorrect.")
+  }
+  if (path === "/auth/register" && req.method === "POST") {
+    const body = req.body as RegisterRequest
+    const email = body.email.toLowerCase()
+    if (users.some((u) => u.email === email)) return fail(409, "Un compte existe déjà avec cet email.")
+    const user = { ...body, email, id: nextUserId++ }
+    users.push(user)
+    return ok(withoutPassword(user), 201)
+  }
+  const userMatch = path.match(/^\/users\/(\d+)$/)
+  if (userMatch && req.method === "PUT") {
+    const user = users.find((u) => u.id === Number(userMatch[1]))
+    if (!user) return fail(404, "Utilisateur introuvable.")
+    Object.assign(user, req.body as UserPreferences)
+    return ok(withoutPassword(user))
+  }
   if (path === "/recipes" && req.method === "GET") {
     const regime = req.params.get("regime")
     const typeRepas = req.params.get("typeRepas")
@@ -73,6 +97,10 @@ function route(req: HttpRequest<unknown>, path: string): Observable<HttpResponse
     return ok({ id: 1, utilisateurId: userId, dateGeneration: new Date().toISOString(), items: aggregate(plans) })
   }
   return null
+}
+
+function withoutPassword({ motDePasse: _, ...user }: RegisterRequest & { id: number }): Utilisateur {
+  return user
 }
 
 function plansInPeriod(userId: number, start: string, end: string): PlanningRepas[] {

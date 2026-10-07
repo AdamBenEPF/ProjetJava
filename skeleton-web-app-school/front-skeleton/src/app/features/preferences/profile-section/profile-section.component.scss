@@ -1,0 +1,14 @@
+mat-card-content {
+  padding-top: 16px;
+}
+
+.profile {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.field {
+  flex: 1;
+  min-width: 220px;
+}

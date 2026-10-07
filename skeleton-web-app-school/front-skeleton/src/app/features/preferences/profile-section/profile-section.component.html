@@ -1,0 +1,21 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Profil</mat-card-title>
+    <mat-card-subtitle>Informations du compte connecté.</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content class="profile">
+    <mat-form-field appearance="outline" class="field">
+      <mat-label>Nom</mat-label>
+      <input matInput [formControl]="nameControl" maxlength="100" autocomplete="name" />
+      @if (nameControl.hasError("required")) {
+        <mat-error>Le nom est obligatoire.</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="field">
+      <mat-label>Email</mat-label>
+      <input matInput [value]="email" readonly />
+      <mat-icon matSuffix>lock</mat-icon>
+      <mat-hint>L'email identifie votre compte et ne peut pas être modifié.</mat-hint>
+    </mat-form-field>
+  </mat-card-content>
+</mat-card>
