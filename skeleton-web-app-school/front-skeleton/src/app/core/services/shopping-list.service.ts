@@ -1,17 +1,32 @@
 import { Injectable, inject } from "@angular/core"
-import { HttpClient, HttpParams } from "@angular/common/http"
-import { Observable } from "rxjs"
-import { environment } from "../../../environments/environment"
-import { ListeCourses } from "core/models/shopping-list.model"
+import { Observable, map } from "rxjs"
+import { PlanningRepas } from "core/models/meal-plan.model"
+import { ListeCourses, ShoppingListItem } from "core/models/shopping-list.model"
+import { MealPlanService } from "./meal-plan.service"
 
+/**
+ * Liste de courses de la semaine, calculée à partir du planning et des ingrédients des recettes.
+ * Le back (`/api/shopping-lists`) n'enregistre qu'une date de génération, sans les ingrédients : on ne l'utilise donc pas ici.
+ */
 @Injectable({ providedIn: "root" })
 export class ShoppingListService {
-  private readonly http = inject(HttpClient)
-  private readonly shoppingListsUrl = `${environment.apiUrl}/shopping-lists`
+  private readonly mealPlanService = inject(MealPlanService)
 
-  /** GET /api/shopping-lists/{userId} — liste agrégée des ingrédients du planning de la semaine. */
   findForWeek(userId: number, startDate: string, endDate: string): Observable<ListeCourses> {
-    const params = new HttpParams().set("startDate", startDate).set("endDate", endDate)
-    return this.http.get<ListeCourses>(`${this.shoppingListsUrl}/${userId}`, { params })
+    return this.mealPlanService
+      .findByPeriod(userId, startDate, endDate)
+      .pipe(map((plans) => ({ utilisateurId: userId, dateGeneration: new Date().toISOString(), items: aggregate(plans) })))
   }
+}
+
+/** Somme des quantités d'un même ingrédient (même nom et même unité) sur tous les repas planifiés. */
+function aggregate(plans: PlanningRepas[]): ShoppingListItem[] {
+  const items = new Map<string, ShoppingListItem>()
+  for (const { ingredient, quantite } of plans.flatMap((plan) => plan.recette.ingredients ?? [])) {
+    const key = `${ingredient.nom}|${ingredient.unite}`
+    const existing = items.get(key)
+    if (existing) existing.quantite += quantite
+    else items.set(key, { ingredientId: ingredient.id, nom: ingredient.nom, unite: ingredient.unite, quantite })
+  }
+  return [...items.values()].sort((a, b) => a.nom.localeCompare(b.nom))
 }

@@ -1,0 +1,48 @@
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <mat-form-field appearance="outline" class="full">
+    <mat-label>Nom</mat-label>
+    <input matInput formControlName="nom" maxlength="100" autocomplete="name" cdkFocusInitial />
+    @if (form.controls.nom.hasError("required")) {
+      <mat-error>Le nom est obligatoire.</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full">
+    <mat-label>Email</mat-label>
+    <input matInput type="email" formControlName="email" autocomplete="email" />
+    @if (form.controls.email.hasError("required")) {
+      <mat-error>L'email est obligatoire.</mat-error>
+    } @else if (form.controls.email.hasError("email")) {
+      <mat-error>Adresse email invalide.</mat-error>
+    }
+  </mat-form-field>
+
+  <app-password-field
+    [control]="form.controls.motDePasse"
+    autocomplete="new-password"
+    [hint]="passwordHint"
+  ></app-password-field>
+  <app-password-field
+    [control]="form.controls.confirmation"
+    label="Confirmer le mot de passe"
+    autocomplete="new-password"
+  ></app-password-field>
+
+  <p class="section-label">Régime alimentaire</p>
+  <app-diet-selector
+    [value]="form.controls.preferenceRegime.value"
+    (valueChange)="form.controls.preferenceRegime.setValue($event)"
+  ></app-diet-selector>
+
+  @if (error) {
+    <app-error-state class="form-error" [message]="error" [retryable]="false"></app-error-state>
+  }
+
+  <button mat-flat-button color="primary" type="submit" class="submit" [disabled]="loading">
+    @if (loading) {
+      <mat-spinner diameter="18"></mat-spinner>
+    } @else {
+      Créer mon compte
+    }
+  </button>
+</form>

@@ -1,25 +1,7 @@
 <app-page-header title="Préférences" subtitle="Votre profil et votre régime alimentaire, utilisés pour filtrer les recettes." icon="tune"></app-page-header>
 
 <form [formGroup]="form" (ngSubmit)="save()">
-  <mat-card class="section">
-    <mat-card-header>
-      <mat-card-title>Profil</mat-card-title>
-      <mat-card-subtitle>Identifiant de l'utilisateur en base (table <code>utilisateur</code>).</mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content class="profile">
-      <mat-form-field appearance="outline">
-        <mat-label>Identifiant utilisateur</mat-label>
-        <input matInput type="number" min="1" formControlName="utilisateurId" />
-        @if (form.controls.utilisateurId.invalid) {
-          <mat-error>Identifiant invalide.</mat-error>
-        }
-      </mat-form-field>
-      <mat-form-field appearance="outline" class="name">
-        <mat-label>Nom</mat-label>
-        <input matInput formControlName="nom" maxlength="100" />
-      </mat-form-field>
-    </mat-card-content>
-  </mat-card>
+  <app-profile-section class="section" [nameControl]="form.controls.nom" [email]="user()?.email ?? ''"></app-profile-section>
 
   <mat-card class="section">
     <mat-card-header>
@@ -35,9 +17,13 @@
   </mat-card>
 
   <div class="actions">
-    <button mat-flat-button color="primary" type="submit" [disabled]="form.pristine">
-      <mat-icon>save</mat-icon>
-      Enregistrer
+    <button mat-flat-button color="primary" type="submit" [disabled]="form.pristine || saving()">
+      @if (saving()) {
+        <mat-spinner diameter="18"></mat-spinner>
+      } @else {
+        <mat-icon>save</mat-icon>
+        Enregistrer
+      }
     </button>
   </div>
 </form>

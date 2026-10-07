@@ -1,25 +1,34 @@
 package com.squadz.back_app.services;
 
+import com.squadz.back_app.DAO.IngredientRepository;
 import com.squadz.back_app.DAO.RecipeIngredientRepository;
 import com.squadz.back_app.DAO.RecipeRepository;
 import com.squadz.back_app.DTO.IngredientQuantityDTO;
 import com.squadz.back_app.DTO.RecipeCreationDTO;
+import com.squadz.back_app.DTO.RecipeDetailsDTO;
+import com.squadz.back_app.models.Ingredient;
 import com.squadz.back_app.models.Recipe;
 import com.squadz.back_app.models.RecipeIngredient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class RecipeService {
 
     private final RecipeRepository recipeRepository;
     private final RecipeIngredientRepository recipeIngredientRepository;
+    private final IngredientRepository ingredientRepository;
 
-    public RecipeService(RecipeRepository recipeRepository, RecipeIngredientRepository recipeIngredientRepository) {
+    public RecipeService(RecipeRepository recipeRepository, RecipeIngredientRepository recipeIngredientRepository,
+                         IngredientRepository ingredientRepository) {
         this.recipeRepository = recipeRepository;
         this.recipeIngredientRepository = recipeIngredientRepository;
+        this.ingredientRepository = ingredientRepository;
     }
 
     // 1. Lister et filtrer les recettes (le catalogue)
@@ -65,5 +74,30 @@ public class RecipeService {
         }
 
         return savedRecipe;
+    }
+
+    // 3. Ajouter à chaque recette ses ingrédients (nom, unité, quantité) pour l'affichage côté front
+    public List<RecipeDetailsDTO> withIngredients(List<Recipe> recipes) {
+        if (recipes.isEmpty()) {
+            return List.of();
+        }
+        List<Long> recipeIds = recipes.stream().map(Recipe::getId).toList();
+        List<RecipeIngredient> lines = recipeIngredientRepository.findByRecipeIdIn(recipeIds);
+
+        List<Long> ingredientIds = lines.stream().map(RecipeIngredient::getIngredientId).distinct().toList();
+        Map<Long, Ingredient> ingredientsById = ingredientRepository.findAllById(ingredientIds).stream()
+                .collect(Collectors.toMap(Ingredient::getId, Function.identity()));
+
+        Map<Long, List<RecipeDetailsDTO.IngredientLine>> linesByRecipe = lines.stream()
+                .filter(line -> ingredientsById.containsKey(line.getIngredientId()))
+                .collect(Collectors.groupingBy(RecipeIngredient::getRecipeId, Collectors.mapping(line -> {
+                    Ingredient ingredient = ingredientsById.get(line.getIngredientId());
+                    return new RecipeDetailsDTO.IngredientLine(
+                            ingredient.getId(), ingredient.getName(), ingredient.getUnit(), line.getQuantity());
+                }, Collectors.toList())));
+
+        return recipes.stream()
+                .map(recipe -> RecipeDetailsDTO.from(recipe, linesByRecipe.getOrDefault(recipe.getId(), List.of())))
+                .toList();
     }
 }

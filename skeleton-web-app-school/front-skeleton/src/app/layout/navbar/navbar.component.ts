@@ -5,8 +5,8 @@ import { MatButtonModule } from "@angular/material/button"
 import { MatIconModule } from "@angular/material/icon"
 import { MatMenuModule } from "@angular/material/menu"
 import { Link } from "core/models/link.model"
-import { UserPreferencesService } from "core/services/user-preferences.service"
-import { DietBadgeComponent } from "shared/components/diet-badge/diet-badge.component"
+import { AuthService } from "core/services/auth.service"
+import { UserMenuComponent } from "../user-menu/user-menu.component"
 
 @Component({
   selector: "app-navbar",
@@ -18,13 +18,13 @@ import { DietBadgeComponent } from "shared/components/diet-badge/diet-badge.comp
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
-    DietBadgeComponent,
+    UserMenuComponent,
   ],
   templateUrl: "./navbar.component.html",
   styleUrls: ["./navbar.component.scss"],
 })
 export class NavbarComponent {
-  readonly preferences = inject(UserPreferencesService).preferences
+  readonly isAuthenticated = inject(AuthService).isAuthenticated
 
   readonly links: Link[] = [
     { name: "Recettes", href: "/recettes", icon: "menu_book" },

@@ -1,0 +1,35 @@
+/* Styles communs aux formulaires de connexion et d'inscription. */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.full {
+  width: 100%;
+}
+
+.form-error {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.submit {
+  width: 100%;
+  height: 46px;
+  margin-top: 4px;
+
+  mat-spinner {
+    margin: 0 auto;
+  }
+}
+
+.section-label {
+  margin: 8px 0 10px;
+  font-weight: 500;
+}
+
+app-diet-selector {
+  display: block;
+  margin-bottom: 16px;
+}

@@ -11,7 +11,9 @@ export class ApiError extends Error {
 const MESSAGES_BY_STATUS: Record<number, string> = {
   0: "Impossible de joindre le serveur. Vérifiez que le back est démarré.",
   400: "Requête invalide : vérifiez les informations saisies.",
+  401: "Email ou mot de passe incorrect.",
   404: "Ressource introuvable.",
+  409: "Un compte existe déjà avec cet email.",
   500: "Erreur interne du serveur. Réessayez plus tard.",
 }
 

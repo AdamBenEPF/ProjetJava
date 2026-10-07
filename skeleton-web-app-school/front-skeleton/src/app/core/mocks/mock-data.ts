@@ -1,4 +1,5 @@
 import { Recette } from "core/models/recipe.model"
+import { RegisterDto, UserDto } from "core/api/api.model"
 
 const ing = (id: number, nom: string, unite: string, quantite: number) => ({ ingredient: { id, nom, unite }, quantite })
 
@@ -143,4 +144,10 @@ export const MOCK_RECIPES: Recette[] = [
       ing(26, "Oignon", "pieces", 0.5),
     ],
   },
+]
+
+/** Comptes de démonstration, au format du back (mêmes identifiants que V2__insert_default_data.sql). */
+export const MOCK_USERS: (UserDto & RegisterDto)[] = [
+  { id: 1, name: "Alice Martin", email: "alice@example.com", password: "password123", dietPreference: "Vegetarian" },
+  { id: 2, name: "Thomas Bernard", email: "thomas@example.com", password: "password123", dietPreference: "Omnivore" },
 ]

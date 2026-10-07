@@ -6,6 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import com.squadz.back_app.DTO.UserDTO;
+import com.squadz.back_app.DTO.UserUpdateDTO;
+import com.squadz.back_app.services.UserService;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -37,4 +41,9 @@ public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
     userService.deleteUser(id);
     return ResponseEntity.ok().build();
 }
+
+    @PutMapping("/{id}")
+    public UserDTO updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO) {
+        return userService.update(id, userUpdateDTO);
+    }
 }
