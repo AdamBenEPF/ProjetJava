@@ -5,14 +5,16 @@ import { MOCK_RECIPES, MOCK_USERS } from "core/mocks/mock-data"
 import { Recette, RecipeGenerationRequest } from "core/models/recipe.model"
 import { PlanningRepas, PlanningRepasRequest } from "core/models/meal-plan.model"
 import { ShoppingListItem } from "core/models/shopping-list.model"
-import { LoginRequest, RegisterRequest, Utilisateur } from "core/models/user.model"
-import { UserPreferences } from "core/models/user-preferences.model"
+import { IngredientDto, LoginDto, RecipeCreationDto, RegisterDto, UserDto, UserUpdateDto } from "core/api/api.model"
+import { toApiRegime, toApiTypeRepas, toRecette, toRecipeDto } from "core/api/api.mappers"
 
 const recipes: Recette[] = structuredClone(MOCK_RECIPES)
+const ingredients: IngredientDto[] = uniqueIngredients(recipes)
 const mealPlans: PlanningRepas[] = []
 const users = structuredClone(MOCK_USERS)
 let nextUserId = users.length + 1
 let nextRecipeId = recipes.length + 1
+let nextIngredientId = Math.max(0, ...ingredients.map((i) => i.id)) + 1
 let nextPlanId = 1
 
 const ok = <T>(body: T, status = 200) => of(new HttpResponse({ status, body })).pipe(delay(250))
@@ -21,7 +23,7 @@ const fail = (status: number, message: string) =>
 
 /**
  * Simule le back Spring Boot en mémoire (activé par `environment.useMockApi`).
- * Respecte le même contrat que l'API réelle afin de pouvoir basculer sans changer les composants.
+ * Respecte le même contrat JSON que l'API réelle (voir core/api/api.model.ts) afin de pouvoir basculer sans changer les services.
  */
 export const mockApiInterceptor: HttpInterceptorFn = (req, next) => {
   if (!req.url.startsWith(environment.apiUrl)) return next(req)
@@ -31,34 +33,54 @@ export const mockApiInterceptor: HttpInterceptorFn = (req, next) => {
 
 function route(req: HttpRequest<unknown>, path: string): Observable<HttpResponse<unknown>> | null {
   if (path === "/auth/login" && req.method === "POST") {
-    const { email, motDePasse } = req.body as LoginRequest
-    const user = users.find((u) => u.email === email.toLowerCase() && u.motDePasse === motDePasse)
-    return user ? ok(withoutPassword(user)) : fail(401, "Email ou mot de passe incorrect.")
+    const { email, password } = req.body as LoginDto
+    const user = users.find((u) => u.email === email.trim().toLowerCase() && u.password === password)
+    return user ? ok(toUserDto(user)) : fail(401, "Email ou mot de passe incorrect.")
   }
   if (path === "/auth/register" && req.method === "POST") {
-    const body = req.body as RegisterRequest
-    const email = body.email.toLowerCase()
+    const body = req.body as RegisterDto
+    const email = body.email.trim().toLowerCase()
     if (users.some((u) => u.email === email)) return fail(409, "Un compte existe déjà avec cet email.")
     const user = { ...body, email, id: nextUserId++ }
     users.push(user)
-    return ok(withoutPassword(user), 201)
+    return ok(toUserDto(user), 201)
   }
   const userMatch = path.match(/^\/users\/(\d+)$/)
   if (userMatch && req.method === "PUT") {
     const user = users.find((u) => u.id === Number(userMatch[1]))
     if (!user) return fail(404, "Utilisateur introuvable.")
-    Object.assign(user, req.body as UserPreferences)
-    return ok(withoutPassword(user))
+    Object.assign(user, req.body as UserUpdateDto)
+    return ok(toUserDto(user))
+  }
+  if (path === "/ingredients" && req.method === "GET") {
+    return ok(ingredients)
+  }
+  if (path === "/ingredients" && req.method === "POST") {
+    const ingredient = { ...(req.body as Omit<IngredientDto, "id">), id: nextIngredientId++ }
+    ingredients.push(ingredient)
+    return ok(ingredient)
   }
   if (path === "/recipes" && req.method === "GET") {
-    const regime = req.params.get("regime")
-    const typeRepas = req.params.get("typeRepas")
-    return ok(recipes.filter((r) => (!regime || r.typeRegime === regime) && (!typeRepas || r.typeRepas === typeRepas)))
+    const dietType = req.params.get("dietType")
+    const mealType = req.params.get("mealType")
+    const matches = recipes.filter(
+      (r) =>
+        (!dietType || toApiRegime(r.typeRegime) === dietType) && (!mealType || toApiTypeRepas(r.typeRepas) === mealType),
+    )
+    return ok(matches.map((r) => toRecipeDto({ ...r, id: r.id! })))
   }
   if (path === "/recipes" && req.method === "POST") {
-    const recipe = { ...(req.body as Recette), id: nextRecipeId++ }
-    recipes.push(recipe)
-    return ok(recipe, 201)
+    const { ingredients: lines, ...body } = req.body as RecipeCreationDto
+    const dto = {
+      ...body,
+      id: nextRecipeId++,
+      ingredients: lines.map(({ ingredientId, quantity }) => {
+        const ingredient = ingredients.find((i) => i.id === ingredientId)
+        return { ingredientId, name: ingredient?.name ?? "?", unit: ingredient?.unit ?? null, quantity }
+      }),
+    }
+    recipes.push(toRecette(dto))
+    return ok(dto, 201)
   }
   if (path === "/recipes/generate" && req.method === "POST") {
     return ok(generateRecipe(req.body as RecipeGenerationRequest), 201).pipe(delay(1200))
@@ -99,8 +121,16 @@ function route(req: HttpRequest<unknown>, path: string): Observable<HttpResponse
   return null
 }
 
-function withoutPassword({ motDePasse: _, ...user }: RegisterRequest & { id: number }): Utilisateur {
-  return user
+function toUserDto({ id, name, email, dietPreference }: UserDto): UserDto {
+  return { id, name, email, dietPreference }
+}
+
+function uniqueIngredients(source: Recette[]): IngredientDto[] {
+  const byId = new Map<number, IngredientDto>()
+  for (const { ingredient } of source.flatMap((r) => r.ingredients ?? [])) {
+    if (ingredient.id != null) byId.set(ingredient.id, { id: ingredient.id, name: ingredient.nom, unit: ingredient.unite })
+  }
+  return [...byId.values()]
 }
 
 function plansInPeriod(userId: number, start: string, end: string): PlanningRepas[] {

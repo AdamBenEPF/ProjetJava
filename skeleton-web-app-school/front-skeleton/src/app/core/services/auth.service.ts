@@ -1,9 +1,11 @@
 import { Injectable, computed, inject, signal } from "@angular/core"
 import { HttpClient } from "@angular/common/http"
 import { Router } from "@angular/router"
-import { Observable, tap } from "rxjs"
+import { Observable, map, tap } from "rxjs"
 import { environment } from "../../../environments/environment"
 import { LoginRequest, RegisterRequest, Utilisateur } from "core/models/user.model"
+import { UserDto } from "core/api/api.model"
+import { toLoginDto, toRegisterDto, toUtilisateur } from "core/api/api.mappers"
 
 const STORAGE_KEY = "repas.session"
 
@@ -20,12 +22,18 @@ export class AuthService {
 
   /** POST /api/auth/login — renvoie l'utilisateur si les identifiants sont valides. */
   login(request: LoginRequest): Observable<Utilisateur> {
-    return this.http.post<Utilisateur>(`${this.authUrl}/login`, request).pipe(tap((user) => this.setUser(user)))
+    return this.http.post<UserDto>(`${this.authUrl}/login`, toLoginDto(request)).pipe(
+      map(toUtilisateur),
+      tap((user) => this.setUser(user)),
+    )
   }
 
   /** POST /api/auth/register — crée le compte puis ouvre directement la session. */
   register(request: RegisterRequest): Observable<Utilisateur> {
-    return this.http.post<Utilisateur>(`${this.authUrl}/register`, request).pipe(tap((user) => this.setUser(user)))
+    return this.http.post<UserDto>(`${this.authUrl}/register`, toRegisterDto(request)).pipe(
+      map(toUtilisateur),
+      tap((user) => this.setUser(user)),
+    )
   }
 
   logout(): void {

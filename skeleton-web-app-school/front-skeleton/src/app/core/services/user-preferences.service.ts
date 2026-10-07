@@ -1,9 +1,11 @@
 import { Injectable, computed, inject } from "@angular/core"
 import { HttpClient } from "@angular/common/http"
-import { Observable, tap } from "rxjs"
+import { Observable, map, tap } from "rxjs"
 import { environment } from "../../../environments/environment"
 import { UserPreferences } from "core/models/user-preferences.model"
 import { Utilisateur } from "core/models/user.model"
+import { UserDto } from "core/api/api.model"
+import { toUserUpdateDto, toUtilisateur } from "core/api/api.mappers"
 import { AuthService } from "./auth.service"
 
 /**
@@ -26,7 +28,10 @@ export class UserPreferencesService {
   /** PUT /api/users/{id} — enregistre le nom et le régime, puis rafraîchit la session. */
   update(preferences: UserPreferences): Observable<Utilisateur> {
     return this.http
-      .put<Utilisateur>(`${this.usersUrl}/${this.userId()}`, preferences)
-      .pipe(tap((user) => this.auth.setUser(user)))
+      .put<UserDto>(`${this.usersUrl}/${this.userId()}`, toUserUpdateDto(preferences))
+      .pipe(
+        map(toUtilisateur),
+        tap((user) => this.auth.setUser(user)),
+      )
   }
 }

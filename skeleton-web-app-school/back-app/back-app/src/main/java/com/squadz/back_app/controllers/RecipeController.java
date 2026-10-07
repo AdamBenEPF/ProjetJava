@@ -1,8 +1,9 @@
 package com.squadz.back_app.controllers;
 
 import com.squadz.back_app.DTO.RecipeCreationDTO;
-import com.squadz.back_app.models.Recipe;
+import com.squadz.back_app.DTO.RecipeDetailsDTO;
 import com.squadz.back_app.services.RecipeService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,15 +21,16 @@ public class RecipeController {
 
     // Endpoint pour lister et filtrer le catalogue : GET /api/recipes?dietType=vegan&mealType=midi
     @GetMapping
-    public List<Recipe> getRecipes(
+    public List<RecipeDetailsDTO> getRecipes(
             @RequestParam(required = false) String dietType,
             @RequestParam(required = false) String mealType) {
-        return recipeService.getRecipesByFilters(dietType, mealType);
+        return recipeService.withIngredients(recipeService.getRecipesByFilters(dietType, mealType));
     }
 
     // Endpoint pour créer une recette et ses ingrédients : POST /api/recipes
     @PostMapping
-    public Recipe createRecipe(@RequestBody RecipeCreationDTO recipeDTO) {
-        return recipeService.createRecipeWithIngredients(recipeDTO);
+    @ResponseStatus(HttpStatus.CREATED)
+    public RecipeDetailsDTO createRecipe(@RequestBody RecipeCreationDTO recipeDTO) {
+        return recipeService.withIngredients(List.of(recipeService.createRecipeWithIngredients(recipeDTO))).get(0);
     }
 }
