@@ -3,9 +3,9 @@
  * Les composants n'utilisent jamais ces types : les services les convertissent via `api.mappers.ts`.
  */
 
-/** Réponse de GET/POST /api/recipes (`RecipeDetailsDTO`). */
+/** Réponse de GET/POST /api/recipes et de GET /api/ai/suggest (`RecipeDetailsDTO`, sans id pour une proposition IA). */
 export interface RecipeDto {
-  id: number
+  id: number | null
   title: string
   mealType: string
   dietType: string
@@ -17,7 +17,8 @@ export interface RecipeDto {
 }
 
 export interface RecipeIngredientDto {
-  ingredientId: number
+  /** `null` pour un ingrédient proposé par l'IA, pas encore enregistré. */
+  ingredientId: number | null
   name: string
   unit: string | null
   quantity: number
@@ -63,4 +64,14 @@ export interface RegisterDto extends LoginDto {
 export interface UserUpdateDto {
   name: string
   dietPreference: string | null
+}
+
+/** Entité `MealPlan` de GET /api/meal-plans/user/{userId} et POST /api/meal-plans (la recette n'est référencée que par son id). */
+export interface MealPlanDto {
+  id: number
+  userId: number
+  recipeId: number
+  /** Format ISO `YYYY-MM-DD`. */
+  date: string
+  momentRepas: string
 }

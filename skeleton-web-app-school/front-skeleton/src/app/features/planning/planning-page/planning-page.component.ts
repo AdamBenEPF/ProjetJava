@@ -137,7 +137,7 @@ export class PlanningPageComponent {
 
     removeExisting$.pipe(switchMap(() => this.mealPlanService.assign(request))).subscribe({
       next: (created) => {
-        const plan: PlanningRepas = { ...created, recette: created.recette ?? recipe }
+        const plan: PlanningRepas = { ...created, recette: recipe }
         this.plans.update((plans) => [...plans.filter((p) => p !== existing), plan])
         this.notification.success(`« ${recipe.titre} » ajouté au planning`)
       },

@@ -1,8 +1,9 @@
 import { Regime, TypeRepas } from "core/models/enums.model"
+import { PlanningRepas, PlanningRepasRequest } from "core/models/meal-plan.model"
 import { Recette } from "core/models/recipe.model"
 import { LoginRequest, RegisterRequest, Utilisateur } from "core/models/user.model"
 import { UserPreferences } from "core/models/user-preferences.model"
-import { LoginDto, RecipeCreationDto, RecipeDto, RegisterDto, UserDto, UserUpdateDto } from "./api.model"
+import { LoginDto, MealPlanDto, RecipeCreationDto, RecipeDto, RegisterDto, UserDto, UserUpdateDto } from "./api.model"
 
 /** Valeurs stockées en base par le back (voir V2__insert_default_data.sql). */
 const API_REGIMES: Record<Regime, string> = {
@@ -27,7 +28,7 @@ export const fromApiTypeRepas = (value: string | null): TypeRepas | null => from
 
 export function toRecette(dto: RecipeDto): Recette {
   return {
-    id: dto.id,
+    id: dto.id ?? undefined,
     titre: dto.title,
     typeRepas: fromApiTypeRepas(dto.mealType) ?? "MIDI",
     typeRegime: fromApiRegime(dto.dietType) ?? "VIANDE",
@@ -36,7 +37,7 @@ export function toRecette(dto: RecipeDto): Recette {
     glucides: dto.carbs,
     lipides: dto.fats,
     ingredients: dto.ingredients.map((line) => ({
-      ingredient: { id: line.ingredientId, nom: line.name, unite: line.unit ?? "" },
+      ingredient: { id: line.ingredientId ?? undefined, nom: line.name, unite: line.unit ?? "" },
       quantite: Number(line.quantity),
     })),
   }
@@ -81,6 +82,25 @@ export function toRecipeCreationDto(recette: Recette, ingredientIds: number[]): 
     carbs: recette.glucides ?? null,
     fats: recette.lipides ?? null,
     ingredients: [...quantities].map(([ingredientId, quantity]) => ({ ingredientId, quantity })),
+  }
+}
+
+export function toPlanningRepas(dto: MealPlanDto, recette: Recette): PlanningRepas {
+  return {
+    id: dto.id,
+    utilisateurId: dto.userId,
+    recette,
+    date: dto.date,
+    momentRepas: fromApiTypeRepas(dto.momentRepas) ?? "MIDI",
+  }
+}
+
+export function toMealPlanDto(request: PlanningRepasRequest): Omit<MealPlanDto, "id"> {
+  return {
+    userId: request.utilisateurId,
+    recipeId: request.recetteId,
+    date: request.date,
+    momentRepas: toApiTypeRepas(request.momentRepas),
   }
 }
 

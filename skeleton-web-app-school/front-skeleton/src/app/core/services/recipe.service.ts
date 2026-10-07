@@ -11,6 +11,7 @@ export class RecipeService {
   private readonly http = inject(HttpClient)
   private readonly recipesUrl = `${environment.apiUrl}/recipes`
   private readonly ingredientsUrl = `${environment.apiUrl}/ingredients`
+  private readonly aiUrl = `${environment.apiUrl}/ai`
 
   /** GET /api/recipes?dietType=&mealType= — filtres optionnels par régime et type de repas. */
   findAll(filters: RecipeFilters = {}): Observable<Recette[]> {
@@ -28,9 +29,13 @@ export class RecipeService {
     )
   }
 
-  /** POST /api/recipes/generate — proposition de recette + valeurs nutritionnelles par l'IA. */
+  /** GET /api/ai/suggest — proposition de recette par l'IA, non enregistrée (sans id) tant qu'elle n'est pas validée. */
   generate(request: RecipeGenerationRequest): Observable<Recette> {
-    return this.http.post<Recette>(`${this.recipesUrl}/generate`, request)
+    let params = new HttpParams()
+      .set("dietType", toApiRegime(request.typeRegime)!)
+      .set("mealType", toApiTypeRepas(request.typeRepas))
+    if (request.consignes) params = params.set("instructions", request.consignes)
+    return this.http.get<RecipeDto>(`${this.aiUrl}/suggest`, { params }).pipe(map(toRecette))
   }
 
   /**
