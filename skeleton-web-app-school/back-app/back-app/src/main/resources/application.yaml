@@ -14,3 +14,7 @@ server:
   error:
     # Renvoie le message des ResponseStatusException au front (ex. "Un compte existe déjà avec cet email.")
     include-message: always
+groq:
+  api:
+    key: ${GROQ_API_KEY:}  # vide = génération IA désactivée, le reste du back fonctionne
+    url: "https://api.groq.com/openai/v1"
