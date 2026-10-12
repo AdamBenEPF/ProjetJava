@@ -3,6 +3,9 @@ package com.squadz.back_app.services;
 import com.squadz.back_app.DAO.IngredientRepository;
 import com.squadz.back_app.DAO.RecipeIngredientRepository;
 import com.squadz.back_app.DAO.RecipeRepository;
+import com.squadz.back_app.DAO.IngredientRepository;
+import com.squadz.back_app.DTO.RecipeIngredientResponse;
+import com.squadz.back_app.models.Ingredient;
 import com.squadz.back_app.DTO.IngredientQuantityDTO;
 import com.squadz.back_app.DTO.RecipeCreationDTO;
 import com.squadz.back_app.DTO.RecipeDetailsDTO;
@@ -25,7 +28,11 @@ public class RecipeService {
     private final IngredientRepository ingredientRepository;
 
     public RecipeService(RecipeRepository recipeRepository, RecipeIngredientRepository recipeIngredientRepository,
+<<<<<<< HEAD
                          IngredientRepository ingredientRepository) {
+=======
+            IngredientRepository ingredientRepository) {
+>>>>>>> ccb12d7 (jout de l'ia)
         this.recipeRepository = recipeRepository;
         this.recipeIngredientRepository = recipeIngredientRepository;
         this.ingredientRepository = ingredientRepository;
@@ -76,6 +83,7 @@ public class RecipeService {
         return savedRecipe;
     }
 
+<<<<<<< HEAD
     // 3. Ajouter à chaque recette ses ingrédients (nom, unité, quantité) pour l'affichage côté front
     public List<RecipeDetailsDTO> withIngredients(List<Recipe> recipes) {
         if (recipes.isEmpty()) {
@@ -98,6 +106,24 @@ public class RecipeService {
 
         return recipes.stream()
                 .map(recipe -> RecipeDetailsDTO.from(recipe, linesByRecipe.getOrDefault(recipe.getId(), List.of())))
+=======
+    public List<RecipeIngredientResponse> getRecipeIngredients(Long recipeId) {
+        if (!recipeRepository.existsById(recipeId)) {
+            throw new IllegalArgumentException("Recette introuvable : " + recipeId);
+        }
+
+        return recipeIngredientRepository.findByRecipeId(recipeId).stream()
+                .map(link -> {
+                    Ingredient ingredient = ingredientRepository.findById(link.getIngredientId())
+                            .orElseThrow(() -> new IllegalStateException(
+                                    "Ingrédient introuvable : " + link.getIngredientId()));
+                    return new RecipeIngredientResponse(
+                            ingredient.getId(),
+                            ingredient.getName(),
+                            ingredient.getUnit(),
+                            link.getQuantity());
+                })
+>>>>>>> ccb12d7 (jout de l'ia)
                 .toList();
     }
 }

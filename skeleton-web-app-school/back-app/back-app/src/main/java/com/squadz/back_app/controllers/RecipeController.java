@@ -1,7 +1,12 @@
 package com.squadz.back_app.controllers;
 
 import com.squadz.back_app.DTO.RecipeCreationDTO;
+<<<<<<< HEAD
 import com.squadz.back_app.DTO.RecipeDetailsDTO;
+=======
+import com.squadz.back_app.DTO.RecipeIngredientResponse;
+import com.squadz.back_app.models.Recipe;
+>>>>>>> ccb12d7 (jout de l'ia)
 import com.squadz.back_app.services.RecipeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -32,5 +37,10 @@ public class RecipeController {
     @ResponseStatus(HttpStatus.CREATED)
     public RecipeDetailsDTO createRecipe(@RequestBody RecipeCreationDTO recipeDTO) {
         return recipeService.withIngredients(List.of(recipeService.createRecipeWithIngredients(recipeDTO))).get(0);
+    }
+
+    @GetMapping("/{recipeId}/ingredients")
+    public List<RecipeIngredientResponse> getRecipeIngredients(@PathVariable Long recipeId) {
+        return recipeService.getRecipeIngredients(recipeId);
     }
 }
