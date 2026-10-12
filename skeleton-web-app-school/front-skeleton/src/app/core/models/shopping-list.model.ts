@@ -6,10 +6,11 @@ export interface ShoppingListItem {
   quantite: number
 }
 
-/** Table `liste_courses` + ses lignes agrégées. */
+/** Dernière liste enregistrée par le back (`shopping_lists`) + les lignes agrégées depuis le planning. */
 export interface ListeCourses {
   id?: number
   utilisateurId: number
+  /** Absente tant que l'utilisateur n'a jamais généré de liste. */
   dateGeneration?: string
   items: ShoppingListItem[]
 }

@@ -3,6 +3,14 @@
   "configurations": [
     {
       "type": "java",
+      "name": "BackAppApplication",
+      "request": "launch",
+      "mainClass": "com.squadz.back_app.BackAppApplication",
+      "projectName": "back-app",
+      "envFile": "${workspaceFolder}/skeleton-web-app-school/back-app/back-app/.env"
+    },
+    {
+      "type": "java",
       "name": "Back skeleton",
       "request": "launch",
       "mainClass": "com.takima.backskeleton.BackSkeletonApplication",

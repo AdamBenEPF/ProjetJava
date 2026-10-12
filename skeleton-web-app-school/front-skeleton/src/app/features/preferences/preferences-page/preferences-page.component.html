@@ -27,3 +27,20 @@
     </button>
   </div>
 </form>
+
+<mat-card class="section danger-zone">
+  <mat-card-header>
+    <mat-card-title>Supprimer mon compte</mat-card-title>
+    <mat-card-subtitle>Votre profil, votre planning et vos listes de courses seront définitivement effacés.</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-actions align="end">
+    <button mat-stroked-button color="warn" type="button" (click)="deleteAccount()" [disabled]="deleting()">
+      @if (deleting()) {
+        <mat-spinner diameter="18"></mat-spinner>
+      } @else {
+        <mat-icon>delete_forever</mat-icon>
+        Supprimer mon compte
+      }
+    </button>
+  </mat-card-actions>
+</mat-card>

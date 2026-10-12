@@ -17,9 +17,23 @@
         }
       </mat-select>
     </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Calories ciblées (optionnel)</mat-label>
+      <input matInput type="number" min="0" formControlName="caloriesCibles" />
+      <span matTextSuffix>kcal</span>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Protéines ciblées (optionnel)</mat-label>
+      <input matInput type="number" min="0" step="0.1" formControlName="proteinesCibles" />
+      <span matTextSuffix>g</span>
+    </mat-form-field>
     <mat-form-field appearance="outline" class="full">
-      <mat-label>Consignes (optionnel)</mat-label>
-      <textarea matInput formControlName="consignes" rows="2" maxlength="300" placeholder="Ex : rapide, moins de 500 kcal, sans gluten…"></textarea>
+      <mat-label>Ingrédient obligatoire (optionnel)</mat-label>
+      <input matInput formControlName="ingredientObligatoire" maxlength="100" placeholder="Ex : pois chiches" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>Préférences (optionnel)</mat-label>
+      <textarea matInput formControlName="consignes" rows="2" maxlength="300" placeholder="Ex : rapide, sans gluten, cuisine italienne…"></textarea>
     </mat-form-field>
   </form>
 
@@ -32,6 +46,7 @@
           <h3>{{ recipe.titre }}</h3>
           <app-diet-badge [regime]="recipe.typeRegime"></app-diet-badge>
         </div>
+        <p class="saved"><mat-icon>check_circle</mat-icon> Recette enregistrée dans le catalogue.</p>
         <app-nutrition-summary [values]="recipe"></app-nutrition-summary>
         <h4>Ingrédients</h4>
         <app-recipe-ingredients-list [ingredients]="recipe.ingredients ?? []"></app-recipe-ingredients-list>
@@ -45,15 +60,15 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close [disabled]="loading()">Annuler</button>
+  <button mat-button mat-dialog-close [disabled]="loading()">Fermer</button>
   <button mat-stroked-button color="primary" (click)="generate()" [disabled]="loading()">
     <mat-icon>{{ proposal() ? "refresh" : "auto_awesome" }}</mat-icon>
     {{ proposal() ? "Autre proposition" : "Générer" }}
   </button>
-  @if (proposal()) {
-    <button mat-flat-button color="primary" (click)="accept()" [disabled]="loading()">
+  @if (proposal(); as recipe) {
+    <button mat-flat-button color="primary" (click)="choose(recipe)" [disabled]="loading()">
       <mat-icon>check</mat-icon>
-      Ajouter aux recettes
+      {{ actionLabel }}
     </button>
   }
 </mat-dialog-actions>

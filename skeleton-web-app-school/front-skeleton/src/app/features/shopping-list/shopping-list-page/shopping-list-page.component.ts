@@ -4,11 +4,13 @@ import { RouterLink } from "@angular/router"
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop"
 import { catchError, of, switchMap, tap } from "rxjs"
 import { MatButtonModule } from "@angular/material/button"
+import { MatIconModule } from "@angular/material/icon"
 import { ListeCourses } from "core/models/shopping-list.model"
 import { ShoppingListService } from "core/services/shopping-list.service"
 import { SelectedWeekService } from "core/services/selected-week.service"
 import { UserPreferencesService } from "core/services/user-preferences.service"
 import { ExportService, ShoppingListExportFormat } from "core/services/export.service"
+import { NotificationService } from "core/services/notification.service"
 import { errorMessage } from "core/interceptors/api-error.interceptor"
 import { PageHeaderComponent } from "shared/components/page-header/page-header.component"
 import { LoadingStateComponent } from "shared/components/loading-state/loading-state.component"
@@ -29,6 +31,7 @@ const CHECKED_STORAGE_PREFIX = "repas.courses."
     DatePipe,
     RouterLink,
     MatButtonModule,
+    MatIconModule,
     PageHeaderComponent,
     LoadingStateComponent,
     ErrorStateComponent,
@@ -50,11 +53,13 @@ export class ShoppingListPageComponent {
   private readonly shoppingListService = inject(ShoppingListService)
   private readonly preferences = inject(UserPreferencesService)
   private readonly exportService = inject(ExportService)
+  private readonly notification = inject(NotificationService)
   readonly week = inject(SelectedWeekService)
 
   readonly list = signal<ListeCourses | null>(null)
   readonly loading = signal(true)
   readonly error = signal<string | null>(null)
+  readonly generating = signal(false)
   readonly checkedKeys = signal(new Set<string>())
   private readonly refresh = signal(0)
 
@@ -100,6 +105,22 @@ export class ShoppingListPageComponent {
 
   reload(): void {
     this.refresh.update((n) => n + 1)
+  }
+
+  /** Enregistre une nouvelle génération côté back puis recalcule la liste depuis le planning. */
+  generate(): void {
+    this.generating.set(true)
+    this.shoppingListService.generate(this.preferences.userId()).subscribe({
+      next: () => {
+        this.generating.set(false)
+        this.notification.success("Liste de courses générée")
+        this.reload()
+      },
+      error: (err) => {
+        this.generating.set(false)
+        this.notification.error(errorMessage(err))
+      },
+    })
   }
 
   toggle(key: string): void {

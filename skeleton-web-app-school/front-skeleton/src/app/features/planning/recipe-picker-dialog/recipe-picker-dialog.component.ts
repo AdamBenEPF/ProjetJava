@@ -16,7 +16,10 @@ import { DietBadgeComponent } from "shared/components/diet-badge/diet-badge.comp
 import { NutritionSummaryComponent } from "shared/components/nutrition-summary/nutrition-summary.component"
 import { RegimeLabelPipe } from "shared/pipes/regime-label.pipe"
 import { TypeRepasLabelPipe } from "shared/pipes/type-repas-label.pipe"
-import { RecipeGenerateDialogComponent } from "features/recipes/recipe-generate-dialog/recipe-generate-dialog.component"
+import {
+  RecipeGenerateDialogComponent,
+  RecipeGenerateDialogData,
+} from "features/recipes/recipe-generate-dialog/recipe-generate-dialog.component"
 
 export interface RecipePickerData {
   typeRepas: TypeRepas
@@ -93,14 +96,16 @@ export class RecipePickerDialogComponent implements OnInit {
     this.dialogRef.close(recipe)
   }
 
+  /** Les recettes générées sont enregistrées par le back : sans choix, la liste est rechargée pour les proposer. */
   generateWithAi(): void {
+    const data: RecipeGenerateDialogData = {
+      typeRepas: this.data.typeRepas,
+      typeRegime: this.data.regime ?? undefined,
+      actionLabel: "Ajouter au planning",
+    }
     this.dialog
-      .open(RecipeGenerateDialogComponent, {
-        width: "640px",
-        maxWidth: "95vw",
-        data: { typeRepas: this.data.typeRepas, typeRegime: this.data.regime ?? undefined },
-      })
+      .open(RecipeGenerateDialogComponent, { data, width: "640px", maxWidth: "95vw" })
       .afterClosed()
-      .subscribe((recipe?: Recette) => recipe && this.select(recipe))
+      .subscribe((recipe?: Recette) => (recipe ? this.select(recipe) : this.load()))
   }
 }

@@ -1,11 +1,12 @@
 import { Injectable, computed, inject, signal } from "@angular/core"
 import { HttpClient } from "@angular/common/http"
 import { Router } from "@angular/router"
-import { Observable, map, tap } from "rxjs"
+import { Observable, map, of, tap } from "rxjs"
 import { environment } from "../../../environments/environment"
 import { LoginRequest, RegisterRequest, Utilisateur } from "core/models/user.model"
 import { UserDto } from "core/api/api.model"
 import { toLoginDto, toRegisterDto, toUtilisateur } from "core/api/api.mappers"
+import { ApiError } from "core/interceptors/api-error.interceptor"
 
 const STORAGE_KEY = "repas.session"
 
@@ -15,6 +16,7 @@ export class AuthService {
   private readonly http = inject(HttpClient)
   private readonly router = inject(Router)
   private readonly authUrl = `${environment.apiUrl}/auth`
+  private readonly usersUrl = `${environment.apiUrl}/users`
   private readonly state = signal<Utilisateur | null>(this.load())
 
   readonly currentUser = this.state.asReadonly()
@@ -34,6 +36,28 @@ export class AuthService {
       map(toUtilisateur),
       tap((user) => this.setUser(user)),
     )
+  }
+
+  /**
+   * GET /api/users/{id} — resynchronise la session conservée dans le navigateur avec la base :
+   * nom et régime à jour, ou déconnexion si le compte n'existe plus. Sans réponse du back, la session est gardée.
+   */
+  refreshSession(): void {
+    const user = this.state()
+    if (!user) return
+    this.http.get<UserDto>(`${this.usersUrl}/${user.id}`).subscribe({
+      next: (dto) => this.setUser(toUtilisateur(dto)),
+      error: (err: unknown) => {
+        if (err instanceof ApiError && err.status === 404) this.logout()
+      },
+    })
+  }
+
+  /** DELETE /api/users/{id} — supprime le compte (planning et listes de courses inclus, en cascade) puis ferme la session. */
+  deleteAccount(): Observable<void> {
+    const user = this.state()
+    if (!user) return of(undefined)
+    return this.http.delete<void>(`${this.usersUrl}/${user.id}`).pipe(tap(() => this.logout()))
   }
 
   logout(): void {

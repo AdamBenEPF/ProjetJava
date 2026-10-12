@@ -32,9 +32,12 @@ export interface RecipeFilters {
   typeRepas?: TypeRepas | null
 }
 
-/** Corps de la requête de génération d'une recette par l'IA. */
+/** Critères de génération d'une recette par l'IA (POST /api/ai/personalized). */
 export interface RecipeGenerationRequest {
   typeRepas: TypeRepas
   typeRegime: Regime
+  caloriesCibles?: number | null
+  proteinesCibles?: number | null
+  ingredientObligatoire?: string
   consignes?: string
 }

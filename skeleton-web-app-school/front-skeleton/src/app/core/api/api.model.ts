@@ -3,9 +3,9 @@
  * Les composants n'utilisent jamais ces types : les services les convertissent via `api.mappers.ts`.
  */
 
-/** Réponse de GET/POST /api/recipes et de GET /api/ai/suggest (`RecipeDetailsDTO`, sans id pour une proposition IA). */
-export interface RecipeDto {
-  id: number | null
+/** Entité `Recipe`, renvoyée seule par POST /api/ai/personalized (sans ses ingrédients). */
+export interface RecipeEntityDto {
+  id: number
   title: string
   mealType: string
   dietType: string
@@ -13,12 +13,16 @@ export interface RecipeDto {
   proteins: number | null
   carbs: number | null
   fats: number | null
+}
+
+/** Réponse de GET/POST /api/recipes (`RecipeDetailsDTO`) : la recette et ses ingrédients. */
+export interface RecipeDto extends RecipeEntityDto {
   ingredients: RecipeIngredientDto[]
 }
 
+/** Ligne d'ingrédient de `RecipeDetailsDTO` et de GET /api/recipes/{id}/ingredients (`RecipeIngredientResponse`). */
 export interface RecipeIngredientDto {
-  /** `null` pour un ingrédient proposé par l'IA, pas encore enregistré. */
-  ingredientId: number | null
+  ingredientId: number
   name: string
   unit: string | null
   quantity: number
@@ -36,6 +40,16 @@ export interface RecipeCreationDto {
   ingredients: { ingredientId: number; quantity: number }[]
 }
 
+/** Corps de POST /api/ai/personalized (`PersonalizedMealRequest`) : tous les critères sont optionnels. */
+export interface PersonalizedMealRequestDto {
+  dietType: string | null
+  mealType: string | null
+  targetCalories: number | null
+  targetProteins: number | null
+  mandatoryIngredient: string | null
+  preferences: string | null
+}
+
 /** Entité `Ingredient` de GET/POST /api/ingredients. */
 export interface IngredientDto {
   id: number
@@ -43,7 +57,7 @@ export interface IngredientDto {
   unit: string | null
 }
 
-/** Réponse de /api/auth/* et PUT /api/users/{id} (`UserDTO`, sans mot de passe). */
+/** Réponse de /api/auth/*, GET et PUT /api/users/{id} (seuls ces champs sont lus, jamais le mot de passe). */
 export interface UserDto {
   id: number
   name: string
@@ -74,4 +88,12 @@ export interface MealPlanDto {
   /** Format ISO `YYYY-MM-DD`. */
   date: string
   momentRepas: string
+}
+
+/** Entité `ShoppingList` de /api/shopping-lists : le back n'enregistre que la date de génération, pas les articles. */
+export interface ShoppingListDto {
+  id: number
+  userId: number
+  /** `LocalDateTime` sans fuseau, ex. `2026-10-12T10:15:00.123`. */
+  dateGeneration: string | null
 }

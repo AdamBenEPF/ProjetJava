@@ -1,9 +1,18 @@
-import { Regime, TypeRepas } from "core/models/enums.model"
+import { REGIME_LABELS, Regime, TYPE_REPAS_LABELS, TypeRepas } from "core/models/enums.model"
 import { PlanningRepas, PlanningRepasRequest } from "core/models/meal-plan.model"
-import { Recette } from "core/models/recipe.model"
+import { Recette, RecipeGenerationRequest } from "core/models/recipe.model"
 import { LoginRequest, RegisterRequest, Utilisateur } from "core/models/user.model"
 import { UserPreferences } from "core/models/user-preferences.model"
-import { LoginDto, MealPlanDto, RecipeCreationDto, RecipeDto, RegisterDto, UserDto, UserUpdateDto } from "./api.model"
+import {
+  LoginDto,
+  MealPlanDto,
+  PersonalizedMealRequestDto,
+  RecipeCreationDto,
+  RecipeDto,
+  RegisterDto,
+  UserDto,
+  UserUpdateDto,
+} from "./api.model"
 
 /** Valeurs stockées en base par le back (voir V2__insert_default_data.sql). */
 const API_REGIMES: Record<Regime, string> = {
@@ -22,13 +31,14 @@ export const toApiRegime = (regime: Regime | null): string | null => (regime ? A
 
 export const toApiTypeRepas = (typeRepas: TypeRepas): string => API_TYPES_REPAS[typeRepas]
 
-export const fromApiRegime = (value: string | null): Regime | null => fromApiValue(API_REGIMES, value)
+export const fromApiRegime = (value: string | null): Regime | null => fromApiValue(API_REGIMES, REGIME_LABELS, value)
 
-export const fromApiTypeRepas = (value: string | null): TypeRepas | null => fromApiValue(API_TYPES_REPAS, value)
+export const fromApiTypeRepas = (value: string | null): TypeRepas | null =>
+  fromApiValue(API_TYPES_REPAS, TYPE_REPAS_LABELS, value)
 
 export function toRecette(dto: RecipeDto): Recette {
   return {
-    id: dto.id ?? undefined,
+    id: dto.id,
     titre: dto.title,
     typeRepas: fromApiTypeRepas(dto.mealType) ?? "MIDI",
     typeRegime: fromApiRegime(dto.dietType) ?? "VIANDE",
@@ -37,28 +47,8 @@ export function toRecette(dto: RecipeDto): Recette {
     glucides: dto.carbs,
     lipides: dto.fats,
     ingredients: dto.ingredients.map((line) => ({
-      ingredient: { id: line.ingredientId ?? undefined, nom: line.name, unite: line.unit ?? "" },
+      ingredient: { id: line.ingredientId, nom: line.name, unite: line.unit ?? "" },
       quantite: Number(line.quantity),
-    })),
-  }
-}
-
-/** Opération inverse de `toRecette` (utilisée par le mock pour répondre comme le back). */
-export function toRecipeDto(recette: Recette & { id: number }): RecipeDto {
-  return {
-    id: recette.id,
-    title: recette.titre,
-    mealType: toApiTypeRepas(recette.typeRepas),
-    dietType: API_REGIMES[recette.typeRegime],
-    calories: recette.calories ?? null,
-    proteins: recette.proteines ?? null,
-    carbs: recette.glucides ?? null,
-    fats: recette.lipides ?? null,
-    ingredients: (recette.ingredients ?? []).map(({ ingredient, quantite }) => ({
-      ingredientId: ingredient.id ?? 0,
-      name: ingredient.nom,
-      unit: ingredient.unite,
-      quantity: quantite,
     })),
   }
 }
@@ -82,6 +72,17 @@ export function toRecipeCreationDto(recette: Recette, ingredientIds: number[]): 
     carbs: recette.glucides ?? null,
     fats: recette.lipides ?? null,
     ingredients: [...quantities].map(([ingredientId, quantity]) => ({ ingredientId, quantity })),
+  }
+}
+
+export function toPersonalizedMealRequestDto(request: RecipeGenerationRequest): PersonalizedMealRequestDto {
+  return {
+    dietType: toApiRegime(request.typeRegime),
+    mealType: toApiTypeRepas(request.typeRepas),
+    targetCalories: request.caloriesCibles ?? null,
+    targetProteins: request.proteinesCibles ?? null,
+    mandatoryIngredient: request.ingredientObligatoire?.trim() || null,
+    preferences: request.consignes?.trim() || null,
   }
 }
 
@@ -120,10 +121,26 @@ export function toUserUpdateDto(preferences: UserPreferences): UserUpdateDto {
   return { name: preferences.nom, dietPreference: toApiRegime(preferences.preferenceRegime) }
 }
 
-/** Recherche insensible à la casse : "vegetarian" ou "VEGETARIEN" donnent tous deux VEGETARIEN. */
-function fromApiValue<K extends string>(values: Record<K, string>, value: string | null): K | null {
+/**
+ * Les recettes générées par l'IA sont enregistrées avec des valeurs libres : on accepte donc la valeur du back
+ * ("Vegetarian"), la clé du front ("VEGETARIEN") ou le libellé français ("Végétarien"), sans tenir compte
+ * de la casse, des accents ni de la ponctuation.
+ */
+function fromApiValue<K extends string>(
+  values: Record<K, string>,
+  labels: Record<K, string>,
+  value: string | null,
+): K | null {
   if (!value) return null
-  const normalized = value.trim().toLowerCase()
+  const normalized = normalize(value)
   const keys = Object.keys(values) as K[]
-  return keys.find((key) => values[key].toLowerCase() === normalized || key.toLowerCase() === normalized) ?? null
+  return keys.find((key) => [values[key], key, labels[key]].some((candidate) => normalize(candidate) === normalized)) ?? null
+}
+
+function normalize(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z]/g, "")
 }

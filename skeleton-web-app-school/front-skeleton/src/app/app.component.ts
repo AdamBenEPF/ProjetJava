@@ -1,5 +1,6 @@
-import { Component } from "@angular/core"
+import { Component, inject } from "@angular/core"
 import { RouterOutlet } from "@angular/router"
+import { AuthService } from "core/services/auth.service"
 import { NavbarComponent } from "layout/navbar/navbar.component"
 
 @Component({
@@ -13,4 +14,8 @@ import { NavbarComponent } from "layout/navbar/navbar.component"
     </main>
   `,
 })
-export class AppComponent {}
+export class AppComponent {
+  constructor() {
+    inject(AuthService).refreshSession()
+  }
+}

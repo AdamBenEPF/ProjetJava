@@ -67,20 +67,6 @@
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
-            },
-            "mock": {
-              "buildOptimizer": false,
-              "optimization": false,
-              "vendorChunk": true,
-              "extractLicenses": false,
-              "sourceMap": true,
-              "namedChunks": true,
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.mock.ts"
-                }
-              ]
             }
           },
           "defaultConfiguration": "production"
@@ -93,9 +79,6 @@
             },
             "development": {
               "buildTarget": "front-skeleton:build:development"
-            },
-            "mock": {
-              "buildTarget": "front-skeleton:build:mock"
             }
           },
           "defaultConfiguration": "development",

@@ -1,6 +1,5 @@
 import { Component, inject, signal } from "@angular/core"
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms"
-import { Observable, of } from "rxjs"
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from "@angular/material/dialog"
 import { MatFormFieldModule } from "@angular/material/form-field"
 import { MatInputModule } from "@angular/material/input"
@@ -20,7 +19,15 @@ import { RegimeLabelPipe } from "shared/pipes/regime-label.pipe"
 import { TypeRepasLabelPipe } from "shared/pipes/type-repas-label.pipe"
 import { RecipeIngredientsListComponent } from "../recipe-ingredients-list/recipe-ingredients-list.component"
 
-/** Demande une proposition de recette à l'IA, l'affiche, puis l'ajoute au catalogue. */
+/** Données d'ouverture : critères pré-remplis (ex. depuis un créneau du planning) et libellé du bouton de choix. */
+export interface RecipeGenerateDialogData extends Partial<RecipeGenerationRequest> {
+  actionLabel?: string
+}
+
+/**
+ * Demande une recette à l'IA selon des critères (POST /api/ai/personalized) et l'affiche.
+ * Le back l'enregistre dès sa génération : le dialogue renvoie la recette choisie, ou rien s'il est simplement fermé.
+ */
 @Component({
   selector: "app-recipe-generate-dialog",
   standalone: true,
@@ -53,8 +60,8 @@ export class RecipeGenerateDialogComponent {
   readonly error = signal<string | null>(null)
   readonly proposal = signal<Recette | null>(null)
 
-  /** Critères pré-remplis, par exemple depuis un créneau du planning. */
-  private readonly initial = inject<Partial<RecipeGenerationRequest> | null>(MAT_DIALOG_DATA, { optional: true })
+  private readonly initial = inject<RecipeGenerateDialogData | null>(MAT_DIALOG_DATA, { optional: true })
+  readonly actionLabel = this.initial?.actionLabel ?? "Choisir cette recette"
 
   readonly form = inject(FormBuilder).nonNullable.group({
     typeRepas: [this.initial?.typeRepas ?? ("MIDI" as TypeRepas), Validators.required],
@@ -62,16 +69,21 @@ export class RecipeGenerateDialogComponent {
       this.initial?.typeRegime ?? inject(UserPreferencesService).regime() ?? ("VEGETARIEN" as Regime),
       Validators.required,
     ],
+    caloriesCibles: [null as number | null, [Validators.min(0), Validators.max(5000)]],
+    proteinesCibles: [null as number | null, [Validators.min(0), Validators.max(500)]],
+    ingredientObligatoire: ["", Validators.maxLength(100)],
     consignes: ["", Validators.maxLength(300)],
   })
 
   generate(): void {
-    if (this.form.invalid) return
-    const { typeRepas, typeRegime, consignes } = this.form.getRawValue()
+    if (this.form.invalid) {
+      this.form.markAllAsTouched()
+      return
+    }
     this.loading.set(true)
     this.error.set(null)
     this.proposal.set(null)
-    this.recipeService.generate({ typeRepas, typeRegime, consignes: consignes.trim() || undefined }).subscribe({
+    this.recipeService.generate(this.form.getRawValue()).subscribe({
       next: (recipe) => {
         this.proposal.set(recipe)
         this.loading.set(false)
@@ -83,18 +95,7 @@ export class RecipeGenerateDialogComponent {
     })
   }
 
-  /** Si le back a déjà enregistré la proposition (id présent), on la renvoie telle quelle ; sinon on la crée. */
-  accept(): void {
-    const recipe = this.proposal()
-    if (!recipe) return
-    const saved$: Observable<Recette> = recipe.id ? of(recipe) : this.recipeService.create(recipe)
-    this.loading.set(true)
-    saved$.subscribe({
-      next: (saved) => this.dialogRef.close(saved),
-      error: (err) => {
-        this.error.set(errorMessage(err))
-        this.loading.set(false)
-      },
-    })
+  choose(recipe: Recette): void {
+    this.dialogRef.close(recipe)
   }
 }
