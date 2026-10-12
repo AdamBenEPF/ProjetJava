@@ -1,8 +1,8 @@
 package com.squadz.back_app.controllers;
 
-import com.squadz.back_app.DTO.RecipeDetailsDTO;
 import com.squadz.back_app.models.MealPlan;
 import com.squadz.back_app.models.Recipe;
+import com.squadz.back_app.DTO.PersonalizedMealRequest;
 import com.squadz.back_app.services.AiMealService;
 import com.squadz.back_app.services.MealPlanService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +21,16 @@ private AiMealService aiMealService;
 @Autowired
 private MealPlanService mealPlanService;
 
-// Proposition de recette non enregistrée : GET /api/ai/suggest?dietType=Vegetarian&mealType=Lunch&instructions=...
+
+@PostMapping("/personalized")
+public Recipe generatePersonalizedMeal(@RequestBody PersonalizedMealRequest criteria) {
+    return aiMealService.generateAndSavePersonalizedMeal(criteria);
+}
+
 @GetMapping("/suggest")
-public RecipeDetailsDTO suggestMeal(@RequestParam String dietType,
-                                    @RequestParam(defaultValue = "Lunch") String mealType,
-                                    @RequestParam(required = false) String instructions) {
-    return aiMealService.generateMealSuggestion(dietType, mealType, instructions);
+public List<Recipe> suggestMeal(@RequestParam String dietType) {
+    return aiMealService.generateAndSavePersonalizedMeals(dietType);
+
 }
 
 @PostMapping("/plan-suggested-meal")
@@ -41,13 +45,13 @@ public MealPlan planSuggestedMeal(@RequestParam Long userId, @RequestParam Long 
 }
 
 @GetMapping("/suggest-batch")
-public String suggestMultipleMeals(@RequestParam String dietType) {
-    return aiMealService.generateMultipleMeals(dietType);
+public List<Recipe> suggestMultipleMeals(@RequestParam String dietType) {
+    return aiMealService.generateAndSavePersonalizedMeals(dietType);
 }
 
 @PostMapping("/generate-and-save")
 public List<Recipe> generateAndSaveMeals(@RequestParam String dietType) {
-    return aiMealService.generateAndSaveMultipleMeals(dietType);
+    return aiMealService.generateAndSavePersonalizedMeals(dietType);
 }
 
 }

@@ -7,5 +7,5 @@ import java.util.List;
 
 @Repository
 public interface ShoppingListDao extends JpaRepository<ShoppingList, Long> {
-    List findByUserId(Long userId);
+    List<ShoppingList> findByUserId(Long userId);
 }
