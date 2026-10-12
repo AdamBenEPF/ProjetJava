@@ -1,6 +1,5 @@
 package com.squadz.back_app.controllers;
 
-import com.squadz.back_app.DTO.RecipeDetailsDTO;
 import com.squadz.back_app.models.MealPlan;
 import com.squadz.back_app.models.Recipe;
 import com.squadz.back_app.DTO.PersonalizedMealRequest;

@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.squadz.back_app.DTO.UserDTO;
 import com.squadz.back_app.DTO.UserUpdateDTO;
-import com.squadz.back_app.services.UserService;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
