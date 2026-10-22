@@ -1,0 +1,283 @@
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #fff;
+  background: radial-gradient(circle at 15% 20%, rgba(255, 138, 80, 0.35), transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(165, 214, 167, 0.3), transparent 45%),
+    linear-gradient(135deg, var(--app-primary-dark), var(--app-primary));
+  animation: fade-in 0.6s ease-out;
+
+  &.is-closing {
+    animation: fade-out 0.6s ease-in forwards;
+  }
+
+  // La pause gèle toutes les animations, y compris celles des chapitres (composants enfants).
+  &.is-paused ::ng-deep *,
+  &.is-paused ::ng-deep *::before,
+  &.is-paused ::ng-deep *::after {
+    animation-play-state: paused !important;
+  }
+}
+
+.controls {
+  padding: 16px 24px 0;
+}
+
+.progress {
+  display: flex;
+  gap: 6px;
+}
+
+.segment {
+  flex: 1;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.25);
+
+  &.done {
+    background: #fff;
+  }
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  background: #fff;
+  transform-origin: left;
+  animation: progress linear forwards;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  --mdc-icon-button-icon-color: #fff;
+  --mdc-outlined-button-label-text-color: #fff;
+  --mdc-outlined-button-outline-color: rgba(255, 255, 255, 0.6);
+}
+
+.chapter {
+  margin-right: auto;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.skip {
+  border-radius: 999px;
+}
+
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px 24px;
+  overflow-y: auto;
+  cursor: pointer;
+}
+
+.scene {
+  width: min(960px, 100%);
+  text-align: center;
+  animation: scene-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.plate {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 220px;
+  height: 220px;
+  margin: 0 auto 24px;
+}
+
+.logo {
+  font-size: 96px;
+  line-height: 1;
+  animation: pop 0.8s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+
+.orbit {
+  position: absolute;
+  inset: 0;
+  rotate: calc(var(--i) * 45deg);
+  animation: spin 16s linear infinite;
+}
+
+.food {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 18px);
+  font-size: 32px;
+  animation: pop 0.5s calc(0.3s + var(--i) * 0.08s) both;
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-weight: 700;
+  animation: rise 0.7s 0.2s both;
+}
+
+h1 {
+  font-size: clamp(2.4rem, 7vw, 3.8rem);
+  animation-delay: 0.5s;
+}
+
+.tagline {
+  margin: 8px 0 0;
+  font-size: 1.3rem;
+  opacity: 0.9;
+  animation: rise 0.7s 0.9s both;
+}
+
+.feature-title {
+  margin-bottom: 28px;
+
+  h2 {
+    max-width: 720px;
+    margin: 12px auto 0;
+    font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+  }
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  font-weight: 500;
+}
+
+.finale {
+  .logo {
+    display: block;
+    margin-bottom: 16px;
+    font-size: 80px;
+  }
+
+  h2 {
+    font-size: clamp(2rem, 5vw, 3rem);
+  }
+
+  p {
+    margin: 8px 0 28px;
+    font-size: 1.15rem;
+    opacity: 0.9;
+    animation: rise 0.7s 0.4s both;
+  }
+
+  button {
+    height: 48px;
+    padding: 0 28px;
+    border-radius: 999px;
+    font-size: 1rem;
+    animation: rise 0.7s 0.6s both;
+  }
+}
+
+.paused-badge {
+  position: absolute;
+  top: calc(50% - 36px);
+  left: calc(50% - 36px);
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+
+  mat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 40px;
+  }
+}
+
+.hint {
+  margin: 0 0 16px;
+  font-size: 0.8rem;
+  text-align: center;
+  opacity: 0.6;
+}
+
+@keyframes progress {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes scene-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.3) rotate(-20deg);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 600px) {
+  .controls,
+  .stage {
+    padding-inline: 16px;
+  }
+
+  .plate {
+    scale: 0.75;
+  }
+
+  .hint {
+    display: none;
+  }
+}
+
+// Mouvements réduits : le contenu apparaît directement, seule la barre de progression continue d'avancer.
+@media (prefers-reduced-motion: reduce) {
+  .stage ::ng-deep *,
+  .stage ::ng-deep *::before,
+  .stage ::ng-deep *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+  }
+}

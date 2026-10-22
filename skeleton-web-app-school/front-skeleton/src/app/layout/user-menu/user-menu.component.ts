@@ -5,6 +5,7 @@ import { MatIconModule } from "@angular/material/icon"
 import { MatMenuModule } from "@angular/material/menu"
 import { MatDividerModule } from "@angular/material/divider"
 import { AuthService } from "core/services/auth.service"
+import { IntroService } from "core/services/intro.service"
 import { NotificationService } from "core/services/notification.service"
 import { DietBadgeComponent } from "shared/components/diet-badge/diet-badge.component"
 
@@ -21,6 +22,7 @@ export class UserMenuComponent {
   private readonly notification = inject(NotificationService)
 
   readonly user = this.auth.currentUser
+  readonly intro = inject(IntroService)
 
   logout(): void {
     this.auth.logout()

@@ -1,0 +1,91 @@
+<div
+  class="intro"
+  [class.is-paused]="paused()"
+  [class.is-closing]="closing()"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Vidéo d'introduction de Planning Repas"
+  (animationend)="onAnimationEnd($event)"
+>
+  <header class="controls">
+    <div class="progress" aria-hidden="true">
+      @for (item of scenes; track item.id; let i = $index) {
+        <span class="segment" [class.done]="i < current()">
+          @if (i === current()) {
+            <span class="fill" [style.animation-duration.ms]="item.duration" (animationend)="next()"></span>
+          }
+        </span>
+      }
+    </div>
+
+    <div class="buttons">
+      <span class="chapter">{{ current() + 1 }}/{{ scenes.length }} · {{ scene().label }}</span>
+      <button mat-icon-button (click)="togglePause()" [attr.aria-label]="paused() ? 'Reprendre la lecture' : 'Mettre en pause'">
+        <mat-icon>{{ paused() ? "play_arrow" : "pause" }}</mat-icon>
+      </button>
+      <button #skipButton mat-stroked-button class="skip" (click)="finish()">
+        Passer l'intro
+        <mat-icon iconPositionEnd>skip_next</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  <div class="stage" (click)="togglePause()">
+    @switch (scene().id) {
+      @case ("accueil") {
+        <section class="scene brand">
+          <div class="plate" aria-hidden="true">
+            <span class="logo">🥗</span>
+            @for (food of foods; track food; let i = $index) {
+              <span class="orbit" [style.--i]="i"><span class="food">{{ food }}</span></span>
+            }
+          </div>
+          <h1>Planning Repas</h1>
+          <p class="tagline">Mangez mieux, planifiez moins.</p>
+        </section>
+      }
+      @case ("fin") {
+        <section class="scene finale">
+          <span class="logo" aria-hidden="true">🥗</span>
+          <h2>{{ greeting() }}</h2>
+          <p>Recettes, planning et courses : tout est prêt pour votre semaine.</p>
+          <button mat-flat-button color="accent" (click)="$event.stopPropagation(); finish()">
+            C'est parti
+            <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+          </button>
+        </section>
+      }
+      @case ("recettes") {
+        <section class="scene feature">
+          <ng-container *ngTemplateOutlet="featureTitle"></ng-container>
+          <app-intro-recipes-scene></app-intro-recipes-scene>
+        </section>
+      }
+      @case ("planning") {
+        <section class="scene feature">
+          <ng-container *ngTemplateOutlet="featureTitle"></ng-container>
+          <app-intro-planning-scene></app-intro-planning-scene>
+        </section>
+      }
+      @case ("courses") {
+        <section class="scene feature">
+          <ng-container *ngTemplateOutlet="featureTitle"></ng-container>
+          <app-intro-shopping-scene></app-intro-shopping-scene>
+        </section>
+      }
+    }
+
+    <ng-template #featureTitle>
+      <div class="feature-title">
+        <span class="chip"><mat-icon>{{ scene().icon }}</mat-icon>{{ scene().label }}</span>
+        <h2>{{ scene().title }}</h2>
+      </div>
+    </ng-template>
+
+    @if (paused()) {
+      <span class="paused-badge" aria-hidden="true"><mat-icon>pause</mat-icon></span>
+    }
+  </div>
+
+  <p class="hint" aria-hidden="true">Espace : pause · ← → : chapitres · Échap : passer</p>
+</div>
